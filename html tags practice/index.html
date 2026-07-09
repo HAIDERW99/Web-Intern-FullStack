@@ -1,0 +1,245 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>DevAcademy – Learn. Build. Grow.</title>
+ 
+  <!-- ════════════════════════════════════════
+       HEADER – Site branding and navigation
+  ════════════════════════════════════════ -->
+  <header>
+    <!-- Main site title -->
+    <h1><span>Dev</span>Academy</h1>
+
+    <!-- Primary site navigation -->
+    <nav aria-label="Primary navigation">
+      <ul>
+        <li><a href="#home">Home</a></li>
+        <li><a href="#articles">Articles</a></li>
+        <li><a href="#join">Join Us</a></li>
+        <li><a href="#contact">Contact</a></li>
+      </ul>
+    </nav>
+  </header>
+  <!-- END: header -->
+
+  <!-- ════════════════════════════════════════
+       PAGE WRAPPER – Flex container holding
+       <main> (primary content) and <aside>
+       (sidebar) side by side
+  ════════════════════════════════════════ -->
+  <div class="page-wrapper" id="home">
+
+    <!-- ══════════════════════════════════════
+         MAIN – All primary page content lives here
+    ══════════════════════════════════════ -->
+    <main>
+
+      <!-- ────────────────────────────────────
+           SECTION 1 – Featured Articles
+      ──────────────────────────────────── -->
+      <section id="articles">
+        <h2>Featured Articles</h2>
+
+        <!-- 
+          ARTICLE – A self-contained, independently
+          distributable blog post
+        -->
+        <article>
+          <!-- Article headline (h2 – second level in hierarchy) -->
+          <h2>Getting Started with HTML5 Semantic Elements</h2>
+          <p>Published on <time datetime="2026-07-09">July 9, 2026</time> · by <strong>Maya Patel</strong></p>
+
+          <!-- Banner / post image -->
+          <img
+            src="https://placehold.co/900x220/1a1a2e/f0a500?text=HTML5+Semantic+Elements"
+            alt="A decorative banner illustrating HTML5 semantic structure with coloured boxes representing header, nav, main, aside and footer"
+          />
+
+          <!-- Article body -->
+          <p>
+            HTML5 introduced a rich set of semantic elements that give real meaning to the
+            structure of a web page. Instead of relying on generic
+            <code>&lt;div&gt;</code> containers for everything, developers can now use
+            tags like <code>&lt;header&gt;</code>, <code>&lt;main&gt;</code>,
+            <code>&lt;article&gt;</code>, and <code>&lt;footer&gt;</code> to describe
+            exactly what each part of the page represents.
+          </p>
+          <p>
+            <span class="highlight">Important:</span> Using semantic HTML not only
+            improves code readability for your team — it also significantly boosts
+            accessibility for screen-reader users and helps search engines understand
+            your content far better than a wall of generic divs ever could.
+          </p>
+
+          <!-- H3 – third level of heading hierarchy -->
+          <h3>Why Semantic HTML Matters</h3>
+          <p>
+            Semantic elements act as signposts for browsers, assistive technologies,
+            and other developers reading your code. They create a clear document
+            outline that communicates intent without a single comment being needed.
+          </p>
+
+          <!-- Unordered list – benefits (no particular order) -->
+          <h3>Key Benefits</h3>
+          <ul class="styled">
+            <li>Improved accessibility for screen readers and assistive tools</li>
+            <li>Better SEO — search engines reward well-structured content</li>
+            <li>Cleaner, self-documenting code that is easier to maintain</li>
+            <li>Consistent rendering across all modern browsers</li>
+          </ul>
+
+          <!-- Ordered list – step-by-step learning path (order matters) -->
+          <h3>Your HTML5 Learning Path</h3>
+          <ol class="styled">
+            <li>Understand the document outline: <code>&lt;html&gt;</code>, <code>&lt;head&gt;</code>, <code>&lt;body&gt;</code></li>
+            <li>Master structural landmarks: <code>&lt;header&gt;</code>, <code>&lt;nav&gt;</code>, <code>&lt;main&gt;</code>, <code>&lt;footer&gt;</code></li>
+            <li>Use grouping elements: <code>&lt;section&gt;</code>, <code>&lt;article&gt;</code>, <code>&lt;aside&gt;</code></li>
+            <li>Add text-level semantics: <code>&lt;strong&gt;</code>, <code>&lt;em&gt;</code>, <code>&lt;time&gt;</code>, <code>&lt;mark&gt;</code></li>
+            <li>Build accessible forms with correct <code>&lt;label&gt;</code> associations</li>
+            <li>Validate your markup using the W3C HTML Validator</li>
+          </ol>
+        </article>
+        <!-- END: article -->
+
+      </section>
+      <!-- END: Section 1 – Featured Articles -->
+
+      <!-- ────────────────────────────────────
+           SECTION 2 – Student Registration
+           (the "Join Us" destination)
+      ──────────────────────────────────── -->
+      <section id="join">
+        <h2>Student Registration</h2>
+        <p>
+          Ready to level up? Fill in the form below to join thousands of learners
+          already building real-world projects on
+          <span class="highlight">DevAcademy</span>.
+        </p>
+
+        <!-- 
+          FORM – action points to the server endpoint;
+          method="post" sends data in the request body
+        -->
+        <form action="/register" method="post" novalidate>
+
+          <!-- DIV group: personal account details -->
+          <div>
+
+            <!-- Username: type="text" -->
+            <div class="form-group">
+              <label for="username">Username</label>
+              <input
+                type="text"
+                id="username"
+                name="username"
+                placeholder="e.g. coder_jane"
+                required
+              />
+            </div>
+
+            <!-- Email: type="email" – browser validates format -->
+            <div class="form-group">
+              <label for="email">Email Address</label>
+              <input
+                type="email"
+                id="email"
+                name="email"
+                placeholder="you@example.com"
+                required
+              />
+            </div>
+
+            <!-- Password: type="password" – masks input -->
+            <div class="form-group">
+              <label for="password">Password</label>
+              <input
+                type="password"
+                id="password"
+                name="password"
+                placeholder="Min. 8 characters"
+                required
+              />
+            </div>
+
+          </div>
+          <!-- END: personal details div -->
+
+          <!-- DIV group: open-ended motivation question -->
+          <div>
+
+            <!-- Textarea for multi-line free text -->
+            <div class="form-group">
+              <label for="motivation">Why do you want to join DevAcademy?</label>
+              <textarea
+                id="motivation"
+                name="motivation"
+                placeholder="Tell us a bit about your goals and what you hope to learn..."
+              ></textarea>
+            </div>
+
+          </div>
+          <!-- END: motivation div -->
+
+          <!-- Submit button -->
+          <button type="submit">Create My Account</button>
+
+        </form>
+        <!-- END: form -->
+
+      </section>
+      <!-- END: Section 2 – Student Registration -->
+
+    </main>
+    <!-- END: main -->
+
+    <!-- ════════════════════════════════════════
+         ASIDE – Supplementary sidebar content
+         (related links + platform mission note)
+    ════════════════════════════════════════ -->
+    <aside aria-label="About DevAcademy">
+
+      <h2>Our Mission</h2>
+      <p>
+        DevAcademy exists to make professional-quality software education
+        accessible to everyone — regardless of background or budget.
+      </p>
+      <p>
+        We believe that <strong>learning by building</strong> is the fastest path
+        from complete beginner to job-ready developer.
+      </p>
+
+      <h3>Quick Links</h3>
+      <ul>
+        <li><a href="#articles">Latest Articles</a></li>
+        <li><a href="#join">Join the Community</a></li>
+        <li><a href="#contact">Contact Support</a></li>
+        <li><a href="#">Student Showcase</a></li>
+        <li><a href="#">Curriculum Roadmap</a></li>
+      </ul>
+
+    </aside>
+    <!-- END: aside -->
+
+  </div>
+  <!-- END: page-wrapper div -->
+
+  <!-- ════════════════════════════════════════
+       FOOTER – Copyright notice and policy links
+  ════════════════════════════════════════ -->
+  <footer id="contact">
+    <p>&copy; 2026 DevAcademy. All rights reserved.</p>
+
+    <!-- Policy navigation links -->
+    <div class="policy-links">
+      <a href="#">Privacy Policy</a>
+      <a href="#">Terms of Service</a>
+      <a href="#">Cookie Policy</a>
+      <a href="#">Accessibility Statement</a>
+    </div>
+  </footer>
+  <!-- END: footer -->
+
+</body>
+</html>
