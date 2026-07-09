@@ -1,3 +1,6 @@
+ScreenShots
+<img width="946" height="401" alt="image" src="https://github.com/user-attachments/assets/0cba648d-6c1b-405f-8d9c-856abe2c1b81" />
+
 # DevAcademy – HTML5 Semantic Structure Demo
 
 A clean, single-page website built with **pure HTML5 only** — no CSS frameworks, no JavaScript libraries. The goal is to demonstrate core HTML5 semantic and structural elements in a real-world layout.
