@@ -1,5 +1,7 @@
 ScreenShots
 <img width="946" height="401" alt="image" src="https://github.com/user-attachments/assets/0cba648d-6c1b-405f-8d9c-856abe2c1b81" />
+<img width="941" height="380" alt="image" src="https://github.com/user-attachments/assets/227beb03-f83e-45b0-be67-11d51639380b" />
+<img width="943" height="410" alt="image" src="https://github.com/user-attachments/assets/8fffdbb6-b4ee-4d24-806d-346fbaaee6d5" />
 
 # DevAcademy – HTML5 Semantic Structure Demo
 
