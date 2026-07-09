@@ -1,0 +1,510 @@
+/* ============================================================
+   style.css — DevAcademy Website Styles
+   Covers: Box Model, Grid, Flexbox, Media Queries, Animations
+   ============================================================ */
+
+
+/* ============================================================
+   SECTION 1 — CSS BASICS & BOX MODEL
+   Typography, colors, spacing, borders, and the universal
+   box-sizing reset so padding never breaks layouts.
+   ============================================================ */
+
+/* --- Universal Reset (Box Model fix) --- */
+*,
+*::before,
+*::after {
+  box-sizing: border-box; /* padding & border included in element's total width/height */
+  margin: 0;
+  padding: 0;
+}
+
+/* --- Root / Base Typography --- */
+:root {
+  --color-bg:        #f4f7fc;   /* light page background   */
+  --color-surface:   #ffffff;   /* cards, form background   */
+  --color-primary:   #2c3e7a;   /* deep blue — brand colour */
+  --color-accent:    #f0a500;   /* gold — highlights        */
+  --color-text:      #1a1a2e;   /* near-black body text     */
+  --color-muted:     #5a6172;   /* secondary/muted text     */
+  --color-border:    #d1d9e6;   /* soft input borders       */
+  --radius:          8px;
+  --shadow:          0 4px 16px rgba(0, 0, 0, 0.08);
+}
+
+body {
+  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+  font-size: 16px;
+  line-height: 1.7;
+  color: var(--color-text);
+  background-color: var(--color-bg);
+}
+
+/* --- Headings Typography --- */
+h1, h2, h3 {
+  font-weight: 700;
+  color: var(--color-primary);
+  margin-bottom: 0.5rem;
+}
+
+h1 { font-size: 2rem; }
+h2 { font-size: 1.5rem; }
+h3 { font-size: 1.2rem; margin-top: 1.2rem; }
+
+/* --- Paragraph & Body Text --- */
+p {
+  margin-bottom: 1rem;
+  color: var(--color-text);
+}
+
+/* --- Links --- */
+a {
+  color: var(--color-primary);
+  text-decoration: none;
+  transition: color 0.3s ease; /* smooth color change on hover */
+}
+a:hover {
+  color: var(--color-accent);
+}
+
+/* --- Inline Code --- */
+code {
+  background-color: #eef1fb;
+  color: #c0392b;
+  padding: 2px 6px;
+  border-radius: 4px;
+  font-family: 'Courier New', Courier, monospace;
+  font-size: 0.9em;
+}
+
+/* --- Highlight Span (used inside paragraphs) --- */
+.highlight {
+  background-color: var(--color-accent);
+  color: #fff;
+  padding: 1px 6px;
+  border-radius: 4px;
+  font-weight: 600;
+}
+
+/* --- Article Image (Box Model: margin + border) --- */
+article img {
+  width: 100%;
+  border-radius: var(--radius);
+  margin: 1rem 0 1.2rem;
+  border: 3px solid var(--color-border); /* soft border */
+  display: block;
+}
+
+/* --- Styled Lists (ul.styled & ol.styled) --- */
+ul.styled,
+ol.styled {
+  padding-left: 1.5rem;
+  margin-bottom: 1rem;
+}
+
+ul.styled li,
+ol.styled li {
+  margin-bottom: 0.4rem;
+  padding-left: 0.3rem;
+}
+
+
+/* ============================================================
+   SECTION 2 — HEADER (Flexbox + Animation)
+   Logo + navigation sit side by side using flexbox.
+   The header title gets a keyframe load animation.
+   ============================================================ */
+
+/* --- Header Container --- */
+header {
+  background-color: var(--color-primary);
+  padding: 1rem 2rem;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
+
+  /* Flexbox: logo left, nav right */
+  display: flex;
+  align-items: center;          /* vertically center items   */
+  justify-content: space-between; /* push logo & nav apart   */
+  flex-wrap: wrap;              /* wrap on small screens     */
+  gap: 0.5rem;
+}
+
+/* --- Logo / Site Title --- */
+header h1 {
+  color: #ffffff;
+  font-size: 1.8rem;
+  animation: fadeSlideIn 0.8s ease both; /* keyframe animation on load */
+}
+
+header h1 span {
+  color: var(--color-accent); /* "Dev" in gold */
+}
+
+/* --- @keyframes: Header Title Load Animation --- */
+@keyframes fadeSlideIn {
+  from {
+    opacity: 0;
+    transform: translateY(-20px); /* starts 20px above, slides down */
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+
+/* ============================================================
+   SECTION 3 — FLEXBOX: Navigation Links
+   Nav <ul> displayed as a horizontal flex row.
+   ============================================================ */
+
+/* --- Nav List (Flexbox Row) --- */
+nav ul {
+  list-style: none;
+  display: flex;             /* horizontal flex row        */
+  align-items: center;       /* vertically center links    */
+  gap: 1.5rem;               /* space between nav items    */
+  flex-wrap: wrap;
+}
+
+nav a {
+  color: #e0e6f0;
+  font-weight: 600;
+  font-size: 0.95rem;
+  padding: 4px 8px;
+  border-radius: 4px;
+  transition: background-color 0.3s ease, color 0.3s ease;
+}
+
+nav a:hover {
+  background-color: var(--color-accent);
+  color: #fff;
+}
+
+
+/* ============================================================
+   SECTION 4 — PAGE WRAPPER (CSS Grid: Main + Aside)
+   Two-column layout: main content + sidebar side by side.
+   ============================================================ */
+
+/* --- Page Wrapper Grid --- */
+.page-wrapper {
+  display: grid;
+  /* 3fr = main gets 3 parts, 1fr = aside gets 1 part */
+  grid-template-columns: 3fr 1fr;
+  gap: 2rem;                    /* space between main & aside */
+  max-width: 1200px;
+  margin: 2rem auto;            /* center on page             */
+  padding: 0 1.5rem;
+}
+
+
+/* ============================================================
+   SECTION 5 — MAIN & SECTIONS (Box Model)
+   Sections inside main get surface background, padding, border.
+   ============================================================ */
+
+/* --- Main Content Area --- */
+main {
+  display: flex;
+  flex-direction: column;  /* stack sections vertically  */
+  gap: 2rem;
+}
+
+/* --- Each Section Block --- */
+section {
+  background-color: var(--color-surface);
+  padding: 2rem;                  /* inner spacing (Box Model) */
+  border-radius: var(--radius);
+  border: 1px solid var(--color-border); /* soft border           */
+  box-shadow: var(--shadow);
+}
+
+/* --- Article inside Section --- */
+article {
+  margin-top: 1rem;
+}
+
+
+/* ============================================================
+   SECTION 6 — ASIDE / SIDEBAR (Box Model)
+   ============================================================ */
+
+aside {
+  background-color: var(--color-surface);
+  padding: 1.5rem;
+  border-radius: var(--radius);
+  border: 1px solid var(--color-border);
+  box-shadow: var(--shadow);
+  align-self: start;  /* don't stretch full height */
+}
+
+aside h2 {
+  font-size: 1.2rem;
+  border-bottom: 2px solid var(--color-accent);
+  padding-bottom: 0.4rem;
+  margin-bottom: 1rem;
+}
+
+aside h3 {
+  margin-top: 1.2rem;
+  font-size: 1rem;
+  color: var(--color-muted);
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+aside ul {
+  list-style: none;
+  margin-top: 0.5rem;
+}
+
+aside ul li {
+  padding: 0.3rem 0;
+  border-bottom: 1px dashed var(--color-border);
+}
+
+aside ul li:last-child {
+  border-bottom: none;
+}
+
+
+/* ============================================================
+   SECTION 7 — CSS GRID: Services / Cards Demo
+   If you add a .cards-grid container with card items,
+   this creates a 3-column equal-width grid automatically.
+   ============================================================ */
+
+/* --- Cards Grid (3-column auto layout) --- */
+.cards-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr); /* 3 equal columns */
+  gap: 1.5rem;
+}
+
+.card {
+  background-color: var(--color-surface);
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius);
+  padding: 1.5rem;
+  box-shadow: var(--shadow);
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+
+.card:hover {
+  transform: translateY(-4px);          /* subtle lift on hover */
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.12);
+}
+
+
+/* ============================================================
+   SECTION 8 — FLEXBOX: Form Layout
+   Form fields stacked vertically with flexbox column.
+   Submit button pushed to the right with justify-content.
+   ============================================================ */
+
+/* --- Form Container (Flexbox Column) --- */
+form {
+  display: flex;
+  flex-direction: column; /* stack all groups vertically */
+  gap: 1.2rem;            /* space between field groups  */
+}
+
+/* --- Each Form Group (Label + Input stacked) --- */
+.form-group {
+  display: flex;
+  flex-direction: column; /* label on top, input below   */
+  gap: 0.4rem;
+}
+
+/* --- Labels --- */
+label {
+  font-weight: 600;
+  font-size: 0.9rem;
+  color: var(--color-primary);
+}
+
+/* --- Inputs & Textarea (Box Model: padding + border) --- */
+input[type="text"],
+input[type="email"],
+input[type="password"],
+textarea {
+  padding: 0.65rem 0.9rem;         /* inner spacing              */
+  border: 2px solid var(--color-border);
+  border-radius: var(--radius);
+  font-size: 1rem;
+  font-family: inherit;
+  color: var(--color-text);
+  background-color: #f9fbff;
+  outline: none;
+  /* Smooth transition on focus */
+  transition: border-color 0.3s ease, box-shadow 0.3s ease;
+}
+
+/* --- Input Focus Animation (transition effect) --- */
+input[type="text"]:focus,
+input[type="email"]:focus,
+input[type="password"]:focus,
+textarea:focus {
+  border-color: var(--color-primary);  /* blue border on focus   */
+  box-shadow: 0 0 0 3px rgba(44, 62, 122, 0.15); /* soft glow   */
+  background-color: #ffffff;
+}
+
+/* --- Textarea Specific --- */
+textarea {
+  min-height: 120px;
+  resize: vertical; /* user can only resize vertically */
+}
+
+/* --- Submit Button Row (Flexbox: push button right) --- */
+form > button[type="submit"] {
+  /* Wrap in a flex row to control alignment */
+  align-self: flex-end; /* push button to the right side */
+}
+
+/* --- Submit Button Styles --- */
+button[type="submit"] {
+  background-color: var(--color-primary);
+  color: #ffffff;
+  font-size: 1rem;
+  font-weight: 700;
+  padding: 0.75rem 2rem;        /* Box Model: padding         */
+  border: none;
+  border-radius: var(--radius);
+  cursor: pointer;
+  /* Smooth transition on hover (animation) */
+  transition: background-color 0.3s ease, transform 0.2s ease, box-shadow 0.3s ease;
+}
+
+/* --- Button Hover Animation --- */
+button[type="submit"]:hover {
+  background-color: var(--color-accent);   /* gold on hover    */
+  transform: scale(1.04);                  /* slight scale-up  */
+  box-shadow: 0 4px 16px rgba(240, 165, 0, 0.35);
+}
+
+/* --- Button Active (click press feedback) --- */
+button[type="submit"]:active {
+  transform: scale(0.97);
+}
+
+
+/* ============================================================
+   SECTION 9 — FOOTER (Flexbox)
+   Copyright text and policy links aligned with flexbox.
+   ============================================================ */
+
+footer {
+  background-color: var(--color-primary);
+  color: #cdd5e0;
+  padding: 1.5rem 2rem;
+  margin-top: 2rem;
+
+  display: flex;
+  align-items: center;         /* vertically center content  */
+  justify-content: space-between; /* copyright left, links right */
+  flex-wrap: wrap;
+  gap: 0.8rem;
+}
+
+footer p {
+  color: #cdd5e0;
+  margin: 0;
+  font-size: 0.9rem;
+}
+
+/* --- Policy Links (Flexbox Row) --- */
+.policy-links {
+  display: flex;
+  gap: 1.2rem;
+  flex-wrap: wrap;
+}
+
+.policy-links a {
+  color: #cdd5e0;
+  font-size: 0.85rem;
+  transition: color 0.3s ease;
+}
+
+.policy-links a:hover {
+  color: var(--color-accent);
+}
+
+
+/* ============================================================
+   SECTION 10 — @keyframes: Extra Animations
+   Pulse animation for .highlight spans
+   ============================================================ */
+
+/* --- Subtle Pulse on .highlight --- */
+@keyframes pulse {
+  0%, 100% { opacity: 1; }
+  50%       { opacity: 0.75; }
+}
+
+.highlight {
+  animation: pulse 2.5s ease-in-out infinite; /* soft looping pulse */
+}
+
+
+/* ============================================================
+   SECTION 11 — MEDIA QUERIES (Responsive Design)
+   Breakpoint: max-width 768px (tablets & mobile phones)
+   Grid columns collapse to 1, padding/margins reduced.
+   ============================================================ */
+
+@media (max-width: 768px) {
+
+  /* --- Page Wrapper: 2-column Grid → 1-column stack --- */
+  .page-wrapper {
+    grid-template-columns: 1fr; /* single column on mobile   */
+    gap: 1.2rem;
+    padding: 0 1rem;
+    margin: 1rem auto;
+  }
+
+  /* --- Cards Grid: 3 columns → 1 column on mobile --- */
+  .cards-grid {
+    grid-template-columns: 1fr;
+  }
+
+  /* --- Header: stacked column on very small screens --- */
+  header {
+    flex-direction: column;
+    align-items: flex-start;
+    padding: 1rem;
+  }
+
+  /* --- Nav: smaller gap on mobile --- */
+  nav ul {
+    gap: 0.8rem;
+  }
+
+  /* --- Sections: reduce padding --- */
+  section {
+    padding: 1.2rem;
+  }
+
+  /* --- Aside: full width below main --- */
+  aside {
+    padding: 1.2rem;
+  }
+
+  /* --- Typography: slightly smaller headings --- */
+  h1 { font-size: 1.5rem; }
+  h2 { font-size: 1.25rem; }
+
+  /* --- Footer: stack vertically on mobile --- */
+  footer {
+    flex-direction: column;
+    align-items: flex-start;
+    padding: 1rem;
+  }
+
+  /* --- Submit Button: full width on mobile --- */
+  button[type="submit"] {
+    align-self: stretch;
+    width: 100%;
+  }
+}
