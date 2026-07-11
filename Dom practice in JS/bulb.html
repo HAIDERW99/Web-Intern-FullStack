@@ -1,0 +1,86 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Light Bulb</title>
+  <style>
+    /* Page layout */
+    body {
+      font-family: Arial, sans-serif;
+      text-align: center;
+      margin-top: 60px;
+      background-color: #f0f0f0;
+    }
+
+    /* Heading style */
+    h1 {
+      font-size: 32px;
+      color: #333;
+    }
+
+    /* Bulb shape - CSS se bana gol circle */
+    .bulb {
+      width: 150px;
+      height: 150px;
+      border-radius: 50%;           /* Circle shape */
+      background-color: #ccc;       /* OFF hone par gray color */
+      margin: 30px auto;            /* Center me rakhna */
+      border: 4px solid #999;
+      transition: background-color 0.3s ease; /* Smooth color change */
+    }
+
+    /* Button style */
+    button {
+      padding: 12px 30px;
+      font-size: 18px;
+      cursor: pointer;
+      border: none;
+      border-radius: 8px;
+      background-color: #4CAF50;    /* Green button */
+      color: white;
+    }
+
+    button:hover {
+      opacity: 0.85;
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Heading -->
+  <h1 id="heading">Light is OFF</h1>
+
+  <!-- Bulb (CSS se bana gol shape) -->
+  <div class="bulb" id="bulb"></div>
+
+  <!-- Button -->
+  <button id="myButton" onclick="toggleLight()">Turn ON</button>
+
+  <script>
+    // Yeh variable track karta hai ke light ON hai ya OFF
+    let isOn = false;
+
+    function toggleLight() {
+      // Elements ko select karo
+      const heading  = document.getElementById("heading");
+      const bulb     = document.getElementById("bulb");
+      const button   = document.getElementById("myButton");
+
+      if (isOn === false) {
+        // Light ON karo
+        heading.textContent        = "Light is ON";
+        bulb.style.backgroundColor = "yellow";
+        button.textContent         = "Turn OFF";
+        isOn = true;
+      } else {
+        // Light OFF karo
+        heading.textContent        = "Light is OFF";
+        bulb.style.backgroundColor = "#ccc";
+        button.textContent         = "Turn ON";
+        isOn = false;
+      }
+    }
+  </script>
+
+</body>
+</html>
