@@ -1,0 +1,486 @@
+<!DOCTYPE html>
+<html class="dark" lang="en">
+
+<head>
+    <meta charset="utf-8" />
+    <meta content="width=device-width, initial-scale=1.0" name="viewport" />
+    <link
+        href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=Plus+Jakarta+Sans:wght@600;700;800&family=Geist:wght@400;500;700&family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=block"
+        rel="stylesheet" />
+    <script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+    <script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    "colors": {
+                        "primary": "#00a8ff",
+                        "background": "#0a0d14",
+                        "surface": "#121620",
+                        "surface-container": "#1a1f2e",
+                        "surface-container-low": "#121620",
+                        "surface-container-lowest": "#0a0d14",
+                        "on-surface": "#d4e4fa",
+                        "on-surface-variant": "#bec7d3",
+                        "outline-variant": "#3e4852",
+                        "primary-container": "#00a8ff",
+                        "on-primary": "#ffffff"
+                    },
+                    "borderRadius": {
+                        "DEFAULT": "0.25rem",
+                        "lg": "0.5rem",
+                        "xl": "0.75rem",
+                        "full": "9999px"
+                    },
+                    "spacing": {
+                        "md": "24px",
+                        "xl": "64px",
+                        "lg": "40px",
+                        "gutter": "24px",
+                        "base": "4px",
+                        "sm": "12px",
+                        "margin-mobile": "16px",
+                        "margin-desktop": "32px",
+                        "xs": "8px"
+                    },
+                    "fontFamily": {
+                        "code-sm": ["Geist"],
+                        "body-lg": ["Inter"],
+                        "headline-lg": ["Plus Jakarta Sans"],
+                        "headline-md": ["Plus Jakarta Sans"],
+                        "headline-lg-mobile": ["Plus Jakarta Sans"],
+                        "body-md": ["Inter"],
+                        "label-md": ["Geist"]
+                    },
+                    "fontSize": {
+                        "code-sm": ["13px", { "lineHeight": "1.5", "fontWeight": "400" }],
+                        "body-lg": ["18px", { "lineHeight": "1.6", "fontWeight": "400" }],
+                        "headline-lg": ["36px", { "lineHeight": "1.2", "letterSpacing": "-0.02em", "fontWeight": "700" }],
+                        "headline-md": ["24px", { "lineHeight": "1.3", "fontWeight": "600" }],
+                        "headline-lg-mobile": ["28px", { "lineHeight": "1.2", "letterSpacing": "-0.01em", "fontWeight": "700" }],
+                        "body-md": ["16px", { "lineHeight": "1.5", "fontWeight": "400" }],
+                        "label-md": ["14px", { "lineHeight": "1", "letterSpacing": "0.05em", "fontWeight": "500" }]
+                    }
+                },
+            },
+        }
+    </script>
+    <style>
+        html {
+            scroll-behavior: smooth;
+        }
+
+        .neon-glow {
+            box-shadow: 0 0 15px rgba(0, 168, 255, 0.4);
+        }
+
+        .bento-card {
+            background: #1a1f2e;
+            border: 1px solid rgba(255, 255, 255, 0.05);
+            transition: all 0.3s ease;
+        }
+
+        .bento-card:hover {
+            border-color: #00a8ff;
+            box-shadow: 0 0 20px rgba(0, 168, 255, 0.1);
+        }
+
+        .side-nav-active {
+            color: #00a8ff;
+            background: rgba(0, 168, 255, 0.1);
+            border-right: 2px solid #00a8ff;
+        }
+
+        .custom-scrollbar::-webkit-scrollbar {
+            width: 6px;
+        }
+
+        .custom-scrollbar::-webkit-scrollbar-track {
+            background: #0a0d14;
+        }
+
+        .custom-scrollbar::-webkit-scrollbar-thumb {
+            background: #1a1f2e;
+            border-radius: 10px;
+        }
+
+        .profile-ring {
+            border: 3px solid #00a8ff;
+            box-shadow: 0 0 25px rgba(0, 168, 255, 0.5);
+        }
+    </style>
+</head>
+
+<body class="bg-background">
+
+    <aside class="fixed left-0 top-0 h-screen w-[280px] bg-surface border-r border-white/5 flex flex-col py-md z-50">
+        <div class="px-md mb-xl">
+            <h1 class="font-headline-md text-headline-md text-primary font-bold tracking-tight">DevMaster</h1>
+            <p class="font-label-md text-label-md text-on-surface-variant opacity-70">Full Stack Engineer</p>
+        </div>
+        <nav class="flex-1 space-y-2">
+            <a class="flex items-center px-md py-4 transition-all duration-300 side-nav-active nav-link" href="#home"
+                data-section="home">
+                <span class="material-symbols-outlined mr-4" style="font-variation-settings: 'FILL' 1;">home</span>
+                <span class="font-label-md text-label-md">Home</span>
+            </a>
+            <a class="flex items-center px-md py-4 transition-all duration-300 text-on-surface-variant hover:bg-white/5 hover:text-on-surface nav-link"
+                href="#about" data-section="about">
+                <span class="material-symbols-outlined mr-4">person</span>
+                <span class="font-label-md text-label-md">About</span>
+            </a>
+            <a class="flex items-center px-md py-4 transition-all duration-300 text-on-surface-variant hover:bg-white/5 hover:text-on-surface nav-link"
+                href="#projects" data-section="projects">
+                <span class="material-symbols-outlined mr-4">code</span>
+                <span class="font-label-md text-label-md">Projects</span>
+            </a>
+            <a class="flex items-center px-md py-4 transition-all duration-300 text-on-surface-variant hover:bg-white/5 hover:text-on-surface nav-link"
+                href="#services" data-section="services">
+                <span class="material-symbols-outlined mr-4">terminal</span>
+                <span class="font-label-md text-label-md">Services</span>
+            </a>
+            <a class="flex items-center px-md py-4 transition-all duration-300 text-on-surface-variant hover:bg-white/5 hover:text-on-surface nav-link"
+                href="#contact" data-section="contact">
+                <span class="material-symbols-outlined mr-4">mail</span>
+                <span class="font-label-md text-label-md">Contact</span>
+            </a>
+        </nav>
+        <div class="px-md mt-auto pt-md border-t border-white/5">
+            <div class="flex items-center gap-3">
+                <div
+                    class="w-10 h-10 rounded-full bg-surface-container flex items-center justify-center overflow-hidden border border-primary/20">
+                    <img alt="Haider Raza" class="w-full h-full object-cover"
+                        src="image/Screenshot 2026-07-14 115610.png" />
+                </div>
+                <div>
+                    <p class="font-label-md text-label-md text-on-surface font-bold">Haider Raza</p>
+                    <p class="text-[10px] text-on-surface-variant uppercase tracking-widest">Available for Hire</p>
+                </div>
+            </div>
+        </div>
+    </aside>
+
+    <main class="ml-[280px] min-h-screen relative flex flex-col p-margin-desktop custom-scrollbar">
+
+        <section id="home" class="scroll-mt-32 mb-xl">
+            <header class="flex justify-between items-center">
+                <div class="flex flex-col">
+                    <div
+                        class="inline-flex items-center bg-primary/10 border border-primary/20 px-3 py-1 rounded-full mb-3 w-fit">
+                        <span class="material-symbols-outlined text-[14px] mr-2 text-primary"
+                            style="font-variation-settings: 'FILL' 1;">verified</span>
+                        <span class="font-label-md text-label-md text-primary">AssalamuAlikum</span>
+                    </div>
+                    <h1 class="font-headline-lg text-headline-lg text-on-surface">Haider Raza</h1>
+                    <p class="font-body-lg text-body-lg text-on-surface-variant mt-1">Full-Stack (MERN & Laravel) &
+                        Mobile (Flutter) Developer</p>
+                    <p class="font-code-sm text-code-sm text-primary italic mt-2 opacity-80">"Consistency Makes a
+                        Difference"</p>
+                </div>
+                <div class="flex items-center gap-4">
+                    <div class="profile-ring w-32 h-32 rounded-full overflow-hidden">
+                        <img alt="Haider Raza Profile Photo" class="w-full h-full object-cover"
+                            src="image/Screenshot 2026-07-14 115610.png" />
+                    </div>
+                </div>
+            </header>
+        </section>
+
+        <section id="about" class="scroll-mt-32 mb-xl">
+            <h2 class="font-headline-md text-headline-md text-on-surface mb-6">Personal Profile</h2>
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-gutter mb-8">
+                <div class="bento-card p-md rounded-xl flex flex-col gap-1">
+                    <span
+                        class="font-label-md text-label-md text-on-surface-variant uppercase tracking-tighter opacity-60">Full
+                        Name</span>
+                    <span class="font-body-md text-body-md text-on-surface font-bold">Haider Raza</span>
+                </div>
+                <div class="bento-card p-md rounded-xl flex flex-col gap-1">
+                    <span
+                        class="font-label-md text-label-md text-on-surface-variant uppercase tracking-tighter opacity-60">Email</span>
+                    <span class="font-body-md text-body-md text-primary truncate">haiderwahla199@gmail.com</span>
+                </div>
+                <div class="bento-card p-md rounded-xl flex flex-col gap-1">
+                    <span
+                        class="font-label-md text-label-md text-on-surface-variant uppercase tracking-tighter opacity-60">Phone</span>
+                    <span class="font-body-md text-body-md text-on-surface">+92 347 4970199</span>
+                </div>
+                <div class="bento-card p-md rounded-xl flex flex-col gap-1">
+                    <span
+                        class="font-label-md text-label-md text-on-surface-variant uppercase tracking-tighter opacity-60">Location</span>
+                    <span class="font-body-md text-body-md text-on-surface">Pakistan</span>
+                </div>
+                <div class="bento-card p-md rounded-xl flex flex-col gap-1">
+                    <span
+                        class="font-label-md text-label-md text-on-surface-variant uppercase tracking-tighter opacity-60">Languages</span>
+                    <span class="font-body-md text-body-md text-on-surface">English, Urdu, Punjabi</span>
+                </div>
+                <div class="bento-card p-md rounded-xl flex flex-col gap-1">
+                    <span
+                        class="font-label-md text-label-md text-on-surface-variant uppercase tracking-tighter opacity-60">Nationality</span>
+                    <span class="font-body-md text-body-md text-on-surface">Pakistan</span>
+                </div>
+            </div>
+
+            <div class="flex flex-wrap gap-4">
+                <a href="#contact"
+                    class="bg-primary text-white hover:neon-glow px-xl py-3 rounded-lg font-label-md text-label-md flex items-center gap-2 transition-all active:scale-95 shadow-[0_0_15px_rgba(0,168,255,0.3)]">
+                    Contact Me
+                    <span class="material-symbols-outlined text-[18px]">send</span>
+                </a>
+                <a href="image/Haider_Raza_CV.pdf" download="Haider_Raza_Resume.pdf"
+                    class="bg-transparent border border-primary text-primary hover:bg-primary/10 px-xl py-3 rounded-lg font-label-md text-label-md flex items-center gap-2 transition-all active:scale-95">
+                    Download Resume
+                    <span class="material-symbols-outlined text-[18px]">download</span>
+                </a>
+            </div>
+        </section>
+
+        <section id="services" class="scroll-mt-32 mb-xl">
+            <h2 class="font-headline-md text-headline-md text-on-surface mb-4">Services</h2>
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-gutter">
+                <div class="bento-card p-md rounded-xl">
+                    <span class="material-symbols-outlined text-primary text-[32px] mb-3">code</span>
+                    <h3 class="font-headline-md text-[20px] text-on-surface mb-2">Web Development</h3>
+                    <p class="font-body-md text-body-md text-on-surface-variant">Modern full-stack web applications
+                        using Laravel, MERN, and SERN stacks.</p>
+                </div>
+                <div class="bento-card p-md rounded-xl">
+                    <span class="material-symbols-outlined text-primary text-[32px] mb-3">phone_iphone</span>
+                    <h3 class="font-headline-md text-[20px] text-on-surface mb-2">Mobile Apps</h3>
+                    <p class="font-body-md text-body-md text-on-surface-variant">Cross-platform fluid android and iOS
+                        applications built using Flutter.</p>
+                </div>
+                <div class="bento-card p-md rounded-xl">
+                    <span class="material-symbols-outlined text-primary text-[32px] mb-3">api</span>
+                    <h3 class="font-headline-md text-[20px] text-on-surface mb-2">API Integrations</h3>
+                    <p class="font-body-md text-body-md text-on-surface-variant">Secure, fast, and robust backend API
+                        integrations and custom database structures.</p>
+                </div>
+            </div>
+        </section>
+
+        <section id="projects" class="scroll-mt-32 mb-xl">
+            <div class="flex flex-col md:flex-row justify-between items-end mb-8 gap-4">
+                <div>
+                    <h2 class="font-headline-md text-headline-md text-on-surface mb-2">Featured Projects</h2>
+                    <p class="font-body-md text-body-md text-on-surface-variant">Scalable solutions built with modern
+                        tech stacks.</p>
+                </div>
+                <div class="flex bg-surface-container p-1 rounded-lg border border-white/5" id="filter-tabs-container">
+                    <button class="px-6 py-2 rounded-md font-label-md text-label-md bg-primary text-white shadow-sm"
+                        data-filter="All">All</button>
+                    <button
+                        class="px-6 py-2 rounded-md font-label-md text-label-md text-on-surface-variant hover:text-on-surface transition-colors"
+                        data-filter="MERN">MERN</button>
+                    <button
+                        class="px-6 py-2 rounded-md font-label-md text-label-md text-on-surface-variant hover:text-on-surface transition-colors"
+                        data-filter="Laravel">Laravel</button>
+                    <button
+                        class="px-6 py-2 rounded-md font-label-md text-label-md text-on-surface-variant hover:text-on-surface transition-colors"
+                        data-filter="Flutter">Flutter</button>
+                </div>
+            </div>
+
+            <div class="grid grid-cols-1 lg:grid-cols-2 gap-gutter" id="projects-list">
+            </div>
+        </section>
+
+        <footer id="contact"
+            class="scroll-mt-32 mt-auto border-t border-white/5 pt-md pb-md flex flex-col md:flex-row justify-between items-center bg-background">
+            <div class="flex flex-col gap-1 mb-4 md:mb-0">
+                <span class="font-code-sm text-code-sm text-primary">© 2026 DevMaster Protocol. All rights
+                    reserved.</span>
+                <span class="font-label-md text-label-md text-on-surface-variant">Designed with precision for Haider
+                    Raza</span>
+            </div>
+            <div class="flex gap-6 items-center">
+                <a class="text-on-surface-variant hover:text-primary transition-all duration-200 flex items-center gap-2"
+                    href="https://www.linkedin.com/in/haider-raza-4341063a9/" target="_blank">
+                    <span class="material-symbols-outlined text-[20px]">link</span>
+                    <span class="font-label-md text-label-md">LinkedIn</span>
+                </a>
+                <a class="text-on-surface-variant hover:text-primary transition-all duration-200 flex items-center gap-2"
+                    href="https://www.facebook.com/profile.php?id=100077446284306" target="_blank">
+                    <span class="material-symbols-outlined text-[20px]">groups</span>
+                    <span class="font-label-md text-label-md">Facebook</span>
+                </a>
+                <a class="text-on-surface-variant hover:text-primary transition-all duration-200 flex items-center gap-2"
+                    href="https://github.com/HAIDERW99/" target="_blank">
+                    <span class="material-symbols-outlined text-[20px]">code</span>
+                    <span class="font-label-md text-label-md">Github</span>
+                </a>
+            </div>
+        </footer>
+    </main>
+
+    <script>
+        // ==========================================
+        // 1. PROJECTS DATABASE (Yahan apne projects add karein)
+        // ==========================================
+        const myProjects = [
+            {
+                title: "Kameti-Pro",
+                desc: "A Pakistani rotating savings group (Kameti) management app with join request workflows and owner rating system.",
+                category: "MERN", // filter key: MERN, Laravel, ya Flutter
+                tags: ["React", "Node.js", "Express", "MongoDB"], // Card ke upar display hone wale tech tags
+                liveLink: "https://haider-fa-23-092-sec-b-awt-y2qt.vercel.app/", // Live project link (agar nahi hai to "#" rakh dein)
+                githubLink: "https://github.com/HAIDERW99",
+                image: "image/Kameti-pro.png" // Card background image
+            },
+            {
+                title: "NeoWallet FinTech",
+                desc: "Cross-platform digital wallet with encrypted transactions and biometric authentication.",
+                category: "Flutter",
+                tags: ["Flutter", "Supabase", "Dart"],
+                liveLink: "#",
+                githubLink: "https://github.com/haiderraza",
+                image: "https://images.unsplash.com/photo-1559526324-4b87b5e36e44?auto=format&fit=crop&w=800&q=80"
+            },
+            {
+                title: "Doctor-Hub Portal",
+                desc: "Healthcare portal allowing patients to schedule appointments and doctors to manage history records.",
+                category: "MERN",
+                tags: ["React", "Node.js", "SupaBase", "Express"],
+                liveLink: "https://haider-092-doctor-hub-frontend.vercel.app/",
+                githubLink: "https://github.com/HAIDERW99",
+                image: "image/Doctor-Hub.png"
+            },
+            {
+                title: "Digital Voting-Site",
+                desc: "Secure online voting platform with secret key generation for each voter to ensure anonymity.Keys distributed separately to protect voter identity; votes recorded without exposing voter information. .",
+                category: "MERN",
+                tags: ["React", "Node.js", "SupaBase", "Express"],
+                liveLink: "https://haider-fa-23-092-sec-b-awt-vbak.vercel.app/",
+                githubLink: "https://github.com/HAIDERW99",
+                image: "image/Voting-Site.png"
+            }
+        ];
+
+        // ==========================================
+        // 2. RENDER PROJECTS FUNCTION
+        // ==========================================
+        const projectsContainer = document.getElementById('projects-list');
+
+        function renderProjects(filterValue = "All") {
+            projectsContainer.innerHTML = ""; // Clear existing
+
+            const filtered = filterValue === "All"
+                ? myProjects
+                : myProjects.filter(p => p.category.toLowerCase() === filterValue.toLowerCase());
+
+            filtered.forEach(project => {
+                // Generate Tech Tags HTML
+                const tagsHTML = project.tags.map(tag => `
+                <span class="bg-background/80 backdrop-blur-sm px-3 py-1 rounded-full font-code-sm text-code-sm text-primary border border-primary/20">${tag}</span>
+            `).join('');
+
+                // Generate Card HTML
+                const cardHTML = `
+                <div class="bento-card rounded-xl overflow-hidden flex flex-col">
+                    <div class="h-48 w-full bg-surface-container overflow-hidden relative group">
+                        <img class="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105" src="${project.image}" alt="${project.title}"/>
+                        <div class="absolute top-4 left-4 flex flex-wrap gap-2">
+                            ${tagsHTML}
+                        </div>
+                    </div>
+                    <div class="p-md flex flex-col flex-1">
+                        <h3 class="font-headline-md text-headline-md text-on-surface mb-2">${project.title}</h3>
+                        <p class="font-body-md text-body-md text-on-surface-variant mb-6">${project.desc}</p>
+                        <div class="flex gap-4 mt-auto">
+                            ${project.liveLink !== "#" ? `
+                                <a href="${project.liveLink}" target="_blank" class="flex items-center gap-2 font-label-md text-label-md text-primary hover:underline underline-offset-4">
+                                    <span class="material-symbols-outlined text-[18px]">open_in_new</span> Live Demo
+                                </a>
+                            ` : ''}
+                            <a href="${project.githubLink}" target="_blank" class="flex items-center gap-2 font-label-md text-label-md text-on-surface-variant hover:text-on-surface">
+                                <span class="material-symbols-outlined text-[18px]">terminal</span> GitHub
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            `;
+                projectsContainer.innerHTML += cardHTML;
+            });
+        }
+
+        // Initial load
+        renderProjects("All");
+
+        // ==========================================
+        // 3. TABS FILTER CLICK LOGIC
+        // ==========================================
+        const tabButtons = document.querySelectorAll('#filter-tabs-container button');
+        tabButtons.forEach(button => {
+            button.addEventListener('click', () => {
+                tabButtons.forEach(b => {
+                    b.classList.remove('bg-primary', 'text-white', 'shadow-sm');
+                    b.classList.add('text-on-surface-variant');
+                });
+                button.classList.add('bg-primary', 'text-white', 'shadow-sm');
+                button.classList.remove('text-on-surface-variant');
+
+                const filter = button.getAttribute('data-filter');
+                renderProjects(filter);
+            });
+        });
+
+        // ==========================================
+        // 4. SIDEBAR ACTIVE STATES & SMOOTH SCROLL
+        // ==========================================
+        const navLinks = document.querySelectorAll('.nav-link');
+        const sections = document.querySelectorAll('section[id], footer[id]');
+
+        function updateActiveNav() {
+            const triggerPoint = window.innerHeight * 0.25;
+            let currentSection = 'home';
+
+            sections.forEach(section => {
+                const rect = section.getBoundingClientRect();
+                if (rect.top <= triggerPoint) {
+                    currentSection = section.getAttribute('id');
+                }
+            });
+
+            // Edge case: agar user bilkul page ke bottom par hai to last section active karo
+            const scrolledToBottom = (window.innerHeight + window.scrollY) >= document.body.scrollHeight - 50;
+            if (scrolledToBottom) {
+                currentSection = sections[sections.length - 1].getAttribute('id');
+            }
+
+            navLinks.forEach(link => {
+                link.classList.remove('side-nav-active');
+                link.classList.add('text-on-surface-variant');
+                if (link.getAttribute('data-section') === currentSection) {
+                    link.classList.add('side-nav-active');
+                    link.classList.remove('text-on-surface-variant');
+                }
+            });
+        }
+
+        // Window scroll track karo
+        window.addEventListener('scroll', updateActiveNav, { passive: true });
+        updateActiveNav();
+
+        // Smooth scroll for nav links
+        navLinks.forEach(link => {
+            link.addEventListener('click', (e) => {
+                e.preventDefault();
+                const targetId = link.getAttribute('data-section');
+                const target = document.getElementById(targetId);
+                if (target) {
+                    target.scrollIntoView({ behavior: 'smooth', block: 'start' });
+                }
+            });
+        });
+
+        // Micro-interactions for buttons
+        document.querySelectorAll('button, a').forEach(btn => {
+            btn.addEventListener('mousedown', () => btn.classList.add('scale-95'));
+            btn.addEventListener('mouseup', () => btn.classList.remove('scale-95'));
+            btn.addEventListener('mouseleave', () => btn.classList.remove('scale-95'));
+        });
+    </script>
+</body>
+
+</html>
