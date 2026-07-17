@@ -5,7 +5,7 @@
 <img width="946" height="391" alt="Screenshot 2026-07-17 070722" src="https://github.com/user-attachments/assets/036e4680-3df9-4c61-aad0-88f1c8c04038" />
 <img width="944" height="387" alt="Screenshot 2026-07-17 070739" src="https://github.com/user-attachments/assets/78a938f1-7101-4fbc-9e02-dc58927046e7" />
 <img width="945" height="287" alt="Screenshot 2026-07-17 070751" src="https://github.com/user-attachments/assets/ee144b60-c16d-4926-8f09-6cec96b99cc1" />
---
+
 # page 2: Search page
 <img width="944" height="443" alt="Screenshot 2026-07-17 071448" src="https://github.com/user-attachments/assets/e944cb3d-aee3-4be7-9f54-3fc1516b33ac" />
 <img width="945" height="401" alt="Screenshot 2026-07-17 071522" src="https://github.com/user-attachments/assets/2abee6cc-117c-40bd-b25b-31f182d59de9" />
