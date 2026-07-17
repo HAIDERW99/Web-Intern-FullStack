@@ -15,6 +15,18 @@
 <img width="947" height="389" alt="Screenshot 2026-07-17 071740" src="https://github.com/user-attachments/assets/8a3d0d2b-93ad-4af4-91ad-06d1be2ee888" />
 <img width="945" height="394" alt="Screenshot 2026-07-17 071759" src="https://github.com/user-attachments/assets/116bf16c-068d-48b1-946e-d5fe014808ca" />
 
+# page 4: Submitting Vehicle Details by Seller/Dealer
+<img width="946" height="443" alt="Screenshot 2026-07-17 072340" src="https://github.com/user-attachments/assets/70b6bafd-a0bd-423b-b1b7-6ddac45b7c0a" />
+<img width="945" height="392" alt="Screenshot 2026-07-17 072408" src="https://github.com/user-attachments/assets/262dac93-0c5d-4798-8992-422a874e2360" />
+<img width="945" height="397" alt="Screenshot 2026-07-17 072429" src="https://github.com/user-attachments/assets/42f0c675-30bc-4154-b39e-f763bfef3299" />
+<img width="945" height="395" alt="Screenshot 2026-07-17 072446" src="https://github.com/user-attachments/assets/1f0577eb-e95b-468a-a1f8-1c6a9f59b67f" />
+
+# page 5: Dealer dashbord
+<img width="945" height="412" alt="Screenshot 2026-07-17 072713" src="https://github.com/user-attachments/assets/04c83772-1e48-48bb-a772-8702a4f93a58" />
+<img width="948" height="397" alt="Screenshot 2026-07-17 072755" src="https://github.com/user-attachments/assets/49a8404f-d796-44cc-b5f5-33b89af0453b" />
+<img width="944" height="391" alt="Screenshot 2026-07-17 072831" src="https://github.com/user-attachments/assets/6b6d798a-cf57-4b22-93f7-ed47cd46dcb0" />
+<img width="955" height="395" alt="Screenshot 2026-07-17 072848" src="https://github.com/user-attachments/assets/3be0fd02-cf14-4a09-a2a3-834669e6d2e7" />
+<img width="945" height="392" alt="Screenshot 2026-07-17 072859" src="https://github.com/user-attachments/assets/4458ccff-9118-4ca4-a180-4bec9eb4488b" />
 
 
 
