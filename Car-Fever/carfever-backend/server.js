@@ -16,8 +16,7 @@ const authRoutes    = require('./src/routes/auth')
 const errorHandler  = require('./src/middleware/errorHandler')
 
 // ─── App initialisation ────────────────────────────────────────────────────
-const app  = express()
-const PORT = process.env.PORT || 5000
+const app = express()
 
 // ─── CORS ─────────────────────────────────────────────────────────────────
 const allowedOrigins = (process.env.ALLOWED_ORIGINS || 'http://localhost:5173,http://localhost:5174')
@@ -66,11 +65,14 @@ app.use((_req, res) => {
 // ─── Global error handler (must be last) ─────────────────────────────────
 app.use(errorHandler)
 
-// ─── Start server ─────────────────────────────────────────────────────────
-app.listen(PORT, () => {
-  console.log(`✅  CarFever API running on http://localhost:${PORT}`)
-  console.log(`   Environment : ${process.env.NODE_ENV || 'development'}`)
-  console.log(`   Allowed origins: ${allowedOrigins.join(', ')}`)
-})
+// ─── Start server (local/dev only — Vercel runs as a serverless function) ──
+if (process.env.NODE_ENV !== 'production') {
+  const PORT = process.env.PORT || 5000
+  app.listen(PORT, () => {
+    console.log(`✅  CarFever API running on http://localhost:${PORT}`)
+    console.log(`   Environment : ${process.env.NODE_ENV || 'development'}`)
+    console.log(`   Allowed origins: ${allowedOrigins.join(', ')}`)
+  })
+}
 
-module.exports = app   // exported for testing
+module.exports = app   // exported for Vercel serverless + testing
