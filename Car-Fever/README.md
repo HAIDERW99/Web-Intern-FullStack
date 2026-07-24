@@ -2,7 +2,7 @@
 
 A full-stack car marketplace where dealers can list vehicles and buyers can browse, filter, and contact sellers.
 
-🔗 **Live Demo:** [https://your-frontend.vercel.app](https://car-fever-frontend.vercel.app) <!-- Replace with your Vercel URL -->  
+🔗 **Live Demo:**https://car-fever-frontend.vercel.app
 
 ---
 
