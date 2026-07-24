@@ -9,7 +9,11 @@ A full-stack car marketplace where dealers can list vehicles and buyers can brow
 ## 📸 Screenshots
 
 <!-- Add screenshots here -->
-<!-- ![Home Page](./screenshots/home.png) -->
+<!-- ![Home Page](./screenshots/home.png) --> 
+<img width="945" height="441" alt="Screenshot 2026-07-17 070641" src="https://github.com/user-attachments/assets/dab35dd5-b7f3-4b7b-9d1c-a2cf3f0cdef5" />
+<img width="946" height="391" alt="Screenshot 2026-07-17 070722" src="https://github.com/user-attachments/assets/57a0f5b5-bf5d-4c8c-a992-d0c0b225ebe1" />
+
+
 <!-- ![Search Results](./screenshots/search.png) -->
 <!-- ![Vehicle Details](./screenshots/details.png) -->
 
