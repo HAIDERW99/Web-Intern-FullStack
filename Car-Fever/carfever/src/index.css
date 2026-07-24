@@ -1,0 +1,81 @@
+@import url('https://fonts.googleapis.com/css2?family=Hanken+Grotesk:wght@400;600;700&family=Inter:wght@400;500;600&display=swap');
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  html {
+    font-family: 'Inter', sans-serif;
+    -webkit-font-smoothing: antialiased;
+  }
+
+  * {
+    box-sizing: border-box;
+  }
+}
+
+@layer components {
+  /* UK Registration Plate */
+  .reg-plate {
+    display: flex;
+    align-items: stretch;
+    border: 2px solid #F5C518;
+    border-radius: 4px;
+    overflow: hidden;
+    background: #F5C518;
+    font-family: 'UKNumberPlate', 'Arial Black', sans-serif;
+    font-weight: 900;
+    letter-spacing: 0.08em;
+  }
+
+  .reg-plate__gb {
+    background: #003189;
+    color: #ffffff;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 4px 6px;
+    font-size: 10px;
+    font-weight: 700;
+    letter-spacing: 0;
+    min-width: 28px;
+    font-family: 'Inter', sans-serif;
+  }
+
+  .reg-plate__gb .stars {
+    font-size: 7px;
+    letter-spacing: 1px;
+    margin-bottom: 1px;
+  }
+
+  .reg-plate__input {
+    background: #F5C518;
+    color: #000;
+    border: none;
+    outline: none;
+    font-size: 22px;
+    font-weight: 900;
+    letter-spacing: 0.12em;
+    padding: 8px 12px;
+    width: 100%;
+    text-transform: uppercase;
+    font-family: 'Arial Black', 'Arial', sans-serif;
+  }
+
+  .reg-plate__input::placeholder {
+    color: rgba(0,0,0,0.35);
+    font-weight: 700;
+    letter-spacing: 0.08em;
+  }
+
+  /* Scrollbar for horizontal scroll */
+  .scrollbar-hide::-webkit-scrollbar { display: none; }
+  .scrollbar-hide { -ms-overflow-style: none; scrollbar-width: none; }
+}
+
+@keyframes fadeInUp {
+  from { opacity: 0; transform: translateY(24px) scale(0.97); }
+  to   { opacity: 1; transform: translateY(0)    scale(1);    }
+}
