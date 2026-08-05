@@ -1,0 +1,132 @@
+@import "leaflet/dist/leaflet.css";
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  * {
+    box-sizing: border-box;
+  }
+
+  html {
+    scroll-behavior: smooth;
+    -webkit-tap-highlight-color: transparent;
+  }
+
+  body {
+    @apply font-sans bg-slate-50 text-navy-900 antialiased;
+  }
+
+  /* Ensure all interactive elements meet 48px min touch target */
+  button,
+  a,
+  [role="button"] {
+    @apply min-h-[48px] flex items-center;
+  }
+
+  input,
+  select,
+  textarea {
+    @apply min-h-[48px];
+  }
+}
+
+@layer components {
+  /* ── Primary CTA Button ── */
+  .btn-primary {
+    @apply inline-flex items-center justify-center gap-2
+           bg-emerald-500 hover:bg-emerald-600 active:bg-emerald-700
+           text-white font-semibold
+           px-6 py-3 rounded-xl
+           min-h-[48px]
+           shadow-cta hover:shadow-card-hover
+           transition-all duration-200
+           focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-emerald-400 focus-visible:ring-offset-2
+           disabled:opacity-50 disabled:cursor-not-allowed disabled:shadow-none;
+  }
+
+  /* ── Secondary Button ── */
+  .btn-secondary {
+    @apply inline-flex items-center justify-center gap-2
+           bg-white hover:bg-slate-50 active:bg-slate-100
+           text-navy-900 font-semibold
+           border border-slate-200
+           px-6 py-3 rounded-xl
+           min-h-[48px]
+           shadow-card hover:shadow-card-hover
+           transition-all duration-200
+           focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-navy-500 focus-visible:ring-offset-2
+           disabled:opacity-50 disabled:cursor-not-allowed;
+  }
+
+  /* ── Outline Button ── */
+  .btn-outline {
+    @apply inline-flex items-center justify-center gap-2
+           bg-transparent hover:bg-white/10
+           text-white font-semibold
+           border-2 border-white/60 hover:border-white
+           px-6 py-3 rounded-xl
+           min-h-[48px]
+           transition-all duration-200
+           focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-white focus-visible:ring-offset-2;
+  }
+
+  /* ── Card ── */
+  .card {
+    @apply bg-white rounded-2xl shadow-card p-6 transition-shadow duration-200 hover:shadow-card-hover;
+  }
+
+  /* ── Input Field ── */
+  .input-field {
+    @apply w-full min-h-[48px] px-4 py-3
+           bg-white border border-slate-200 rounded-xl
+           text-navy-900 placeholder-slate-400
+           focus:outline-none focus:ring-2 focus:ring-emerald-400 focus:border-transparent
+           transition-all duration-150;
+  }
+
+  /* ── Select Field ── */
+  .select-field {
+    @apply input-field appearance-none cursor-pointer;
+  }
+
+  /* ── Badge ── */
+  .badge {
+    @apply inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-xs font-semibold;
+  }
+
+  /* ── Status Badges ── */
+  .badge-pending    { @apply badge bg-amber-100 text-amber-700; }
+  .badge-assigned   { @apply badge bg-blue-100 text-blue-700; }
+  .badge-en-route   { @apply badge bg-purple-100 text-purple-700; }
+  .badge-on-site    { @apply badge bg-emerald-100 text-emerald-700; }
+  .badge-completed  { @apply badge bg-slate-100 text-slate-600; }
+  .badge-cancelled  { @apply badge bg-red-100 text-red-700; }
+
+  /* ── Section Heading ── */
+  .section-heading {
+    @apply text-3xl md:text-4xl font-bold text-navy-900 leading-tight;
+  }
+
+  /* ── Page Container ── */
+  .page-container {
+    @apply max-w-7xl mx-auto px-4 sm:px-6 lg:px-8;
+  }
+
+  /* ── Kanban Column ── */
+  .kanban-column {
+    @apply bg-slate-100 rounded-2xl p-4 min-h-[200px];
+  }
+
+  /* ── Skeleton loader ── */
+  .skeleton {
+    @apply animate-pulse bg-slate-200 rounded-lg;
+  }
+}
+
+@layer utilities {
+  .text-balance {
+    text-wrap: balance;
+  }
+}

@@ -1,0 +1,17 @@
+{
+  "name": "tradepro360-backend",
+  "version": "1.0.0",
+  "description": "TradePro 360 backend - Supabase migrations and edge functions",
+  "scripts": {
+    "supabase:start": "supabase start",
+    "supabase:stop": "supabase stop",
+    "supabase:migrate": "supabase db push",
+    "supabase:reset": "supabase db reset",
+    "supabase:gen-types": "supabase gen types typescript --local > ../frontend/src/types/supabase.ts",
+    "supabase:functions:serve": "supabase functions serve",
+    "supabase:functions:deploy": "supabase functions deploy"
+  },
+  "devDependencies": {
+    "supabase": "^1.150.0"
+  }
+}
