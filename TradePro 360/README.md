@@ -20,7 +20,7 @@ Use these accounts to explore each role without signing up:
 |------|-------|----------|
 | Admin | haiderwahla199@gmail.com | admin199 |
 | Engineer | herohaitu07@gmaail.com | engineer199 |
-| Customer | user199@gmail.com | user199 |
+| Customer | user199@gmail.com | user1999 |
 
 > Sign in via the **Login** button on the homepage header.
 
