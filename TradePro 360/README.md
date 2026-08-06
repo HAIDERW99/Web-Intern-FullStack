@@ -61,16 +61,20 @@ Use these accounts to explore each role without signing up:
 
 
 ### Booking Flow — 4-Step Wizard
-![Booking]()
+<img width="945" height="440" alt="image" src="https://github.com/user-attachments/assets/692cc386-8612-4281-9589-ae3c7a248f1a" />
+
 
 ### Live Engineer Tracking Map
-![Tracking](./screenshots/tracking.png)
+<img width="959" height="398" alt="image" src="https://github.com/user-attachments/assets/666fe528-a04e-4d2f-b259-669efdd3b715" />
+
 
 ### Admin Dashboard — Kanban Board
-![Admin Dashboard](./screenshots/admin-kanban.png)
+<img width="947" height="437" alt="Screenshot 2026-08-06 233230" src="https://github.com/user-attachments/assets/ecc73db6-e668-403f-a974-06f0cd2dac35" />
+
 
 ### Engineer Dashboard — Job Queue
-![Engineer Dashboard](./screenshots/engineer-dashboard.png)
+<img width="946" height="439" alt="image" src="https://github.com/user-attachments/assets/df759cd5-67bc-4249-8755-cebf489b426e" />
+
 
 > **Note:** Add your own screenshots to a `/screenshots` folder in the project root and update the paths above.
 
