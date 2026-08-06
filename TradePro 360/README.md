@@ -57,8 +57,8 @@ Use these accounts to explore each role without signing up:
 ## Screenshots
 
 ### Homepage — Hero & Booking Widget
-![Homepage](<img width="947" height="437" alt="image" src="https://github.com/user-attachments/assets/0287b924-39aa-410a-b244-c94f9fd5ecbd" />
-)
+<img width="947" height="437" alt="Screenshot 2026-08-06 232858" src="https://github.com/user-attachments/assets/3fa527d4-9af2-4391-bc28-0173b10ca3da" />
+
 
 ### Booking Flow — 4-Step Wizard
 ![Booking]()
