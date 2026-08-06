@@ -1,6 +1,6 @@
 # TradePro 360
 
-🌐 **Live Site:** [https://tradepro-360.vercel.app](https://tradepro-360.vercel.app)
+🌐 **Live Site:** (https://trade-pro-360.vercel.app/)
 
 ---
 
