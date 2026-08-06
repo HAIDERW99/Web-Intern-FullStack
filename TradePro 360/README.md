@@ -18,9 +18,9 @@ Use these accounts to explore each role without signing up:
 
 | Role | Email | Password |
 |------|-------|----------|
-| Admin | admin@tradepro360.com | Admin@123 |
-| Engineer | engineer@tradepro360.com | Engineer@123 |
-| Customer | customer@tradepro360.com | Customer@123 |
+| Admin | haiderwahla199@gmail.com | admin199 |
+| Engineer | herohaitu07@gmaail.com | engineer199 |
+| Customer | user199@gmail.com | user199 |
 
 > Sign in via the **Login** button on the homepage header.
 
