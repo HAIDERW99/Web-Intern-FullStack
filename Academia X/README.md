@@ -40,19 +40,19 @@ You can test each user role using the pre-seeded credentials or test accounts be
 <div align="center">
 
 ### 👑 Super Admin Analytics & Multi-Branch Control
-![Super Admin Dashboard](https://raw.githubusercontent.com/username/Academia-X/main/docs/screenshots/super-admin-dashboard.png)
+<img width="948" height="434" alt="image" src="https://github.com/user-attachments/assets/ea85285e-ca46-404d-a738-8a11329e4a86" />
 *Centralized control panel for system metrics, branch provisioning, and real-time database ping monitoring.*
 
 ### 🏫 Campus Admin Panel
-![Admin User Management](https://raw.githubusercontent.com/username/Academia-X/main/docs/screenshots/admin-management.png)
+<img width="948" height="437" alt="image" src="https://github.com/user-attachments/assets/e157fd3f-a661-4c8c-8a80-a7fb36fcc3ea" />
 *Manage campus users, courses, reports, and role assignments with ease.*
 
 ### 👨‍🏫 Teacher Portal & Attendance Tracking
-![Teacher Dashboard](https://raw.githubusercontent.com/username/Academia-X/main/docs/screenshots/teacher-portal.png)
+<img width="949" height="443" alt="image" src="https://github.com/user-attachments/assets/c7afd1fe-04a5-4bc9-a7ce-c0a7ca8811a8" />
 *Mark student attendance, assign coursework, and record grades dynamically.*
 
 ### 🎓 Student Learning Hub
-![Student Dashboard](https://raw.githubusercontent.com/username/Academia-X/main/docs/screenshots/student-dashboard.png)
+<img width="948" height="437" alt="image" src="https://github.com/user-attachments/assets/dd17c7f7-1865-434a-8ca5-d86deb3e2021" />
 *Personalized academic tracker showing active courses, upcoming assignments, and performance grades.*
 
 </div>
