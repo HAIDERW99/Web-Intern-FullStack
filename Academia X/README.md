@@ -8,7 +8,7 @@
 
 ---
 
-🌐 **Live Vercel Application URL:** [https://academia-x.vercel.app](https://academia-x.vercel.app)
+🌐 **Live Vercel Application URL:** https://academia-x-one.vercel.app
 
 ---
 
