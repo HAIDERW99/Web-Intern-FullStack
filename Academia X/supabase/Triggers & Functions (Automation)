@@ -1,0 +1,60 @@
+-- Helper function to extract user role from metadata or default to 'student'
+CREATE OR REPLACE FUNCTION public.handle_new_user()
+RETURNS TRIGGER
+LANGUAGE plpgsql
+SECURITY DEFINER
+SET search_path = public
+AS $$
+DECLARE
+  raw_role text;
+  final_role public.user_role;
+BEGIN
+  -- Safely extract role text from user metadata
+  raw_role := LOWER(COALESCE(new.raw_user_meta_data->>'role', 'student'));
+
+  -- Map raw role to public.user_role ENUM safely with fallback
+  IF raw_role = 'super_admin' THEN
+    final_role := 'super_admin'::public.user_role;
+  ELSIF raw_role = 'admin' THEN
+    final_role := 'admin'::public.user_role;
+  ELSIF raw_role = 'teacher' THEN
+    final_role := 'teacher'::public.user_role;
+  ELSE
+    final_role := 'student'::public.user_role;
+  END IF;
+
+  INSERT INTO public.profiles (id, full_name, email, role, created_at, updated_at)
+  VALUES (
+    new.id,
+    COALESCE(
+      NULLIF(TRIM(new.raw_user_meta_data->>'full_name'), ''),
+      NULLIF(TRIM(new.raw_user_meta_data->>'name'), ''),
+      SPLIT_PART(new.email, '@', 1),
+      'User'
+    ),
+    new.email,
+    final_role,
+    NOW(),
+    NOW()
+  )
+  ON CONFLICT (id) DO UPDATE
+  SET
+    full_name = EXCLUDED.full_name,
+    email     = EXCLUDED.email,
+    role      = EXCLUDED.role,
+    updated_at = NOW();
+
+  RETURN NEW;
+EXCEPTION WHEN OTHERS THEN
+  -- Prevent signup 500 failure if profile creation hits an unexpected issue
+  RAISE WARNING 'Error creating profile for user %: %', new.id, SQLERRM;
+  RETURN NEW;
+END;
+$$;
+
+-- Trigger logic
+DROP TRIGGER IF EXISTS on_auth_user_created ON auth.users;
+
+CREATE TRIGGER on_auth_user_created
+  AFTER INSERT ON auth.users
+  FOR EACH ROW EXECUTE FUNCTION public.handle_new_user();

@@ -1,0 +1,8 @@
+-- Role Enum
+CREATE TYPE user_role AS ENUM ('super_admin', 'admin', 'teacher', 'student');
+
+-- Attendance Status Enum
+CREATE TYPE attendance_status AS ENUM ('present', 'absent', 'late', 'leave');
+
+-- Submission Status Enum
+CREATE TYPE submission_status AS ENUM ('pending', 'submitted', 'late');

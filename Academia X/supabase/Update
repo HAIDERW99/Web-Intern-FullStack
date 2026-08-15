@@ -1,0 +1,33 @@
+-- 1. Make sure the role column (or enum) accepts 'admin'
+--    If you used a CHECK constraint, update it:
+ALTER TABLE public.profiles
+  DROP CONSTRAINT IF EXISTS profiles_role_check;
+
+ALTER TABLE public.profiles
+  ADD CONSTRAINT profiles_role_check
+  CHECK (role IN ('student', 'teacher', 'admin', 'super_admin'));
+
+-- 2. If you have a trigger that inserts into profiles on user creation,
+--    make sure it doesn't hard-code only 'student'/'teacher'.
+--    The trigger should look like this:
+CREATE OR REPLACE FUNCTION public.handle_new_user()
+RETURNS TRIGGER
+LANGUAGE plpgsql
+SECURITY DEFINER
+SET search_path = public
+AS $$
+BEGIN
+  INSERT INTO public.profiles (id, email, full_name, role)
+  VALUES (
+    NEW.id,
+    NEW.email,
+    COALESCE(NEW.raw_user_meta_data->>'full_name', ''),
+    COALESCE(NEW.raw_user_meta_data->>'role', 'student')
+  )
+  ON CONFLICT (id) DO UPDATE
+    SET full_name = EXCLUDED.full_name,
+        role      = EXCLUDED.role,
+        email     = EXCLUDED.email;
+  RETURN NEW;
+END;
+$$;

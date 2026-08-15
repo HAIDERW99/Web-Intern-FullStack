@@ -1,0 +1,38 @@
+-- Assignments Table
+CREATE TABLE public.assignments (
+    id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+    batch_id UUID NOT NULL REFERENCES public.batches(id) ON DELETE CASCADE,
+    created_by UUID NOT NULL REFERENCES public.profiles(id) ON DELETE SET NULL,
+    title VARCHAR(255) NOT NULL,
+    description TEXT NOT NULL,
+    due_date TIMESTAMPTZ NOT NULL,
+    attachment_urls TEXT[], -- Array of file URLs stored in Supabase Storage
+    created_at TIMESTAMPTZ DEFAULT NOW(),
+    updated_at TIMESTAMPTZ DEFAULT NOW()
+);
+
+-- Submissions Table
+CREATE TABLE public.assignment_submissions (
+    id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+    assignment_id UUID NOT NULL REFERENCES public.assignments(id) ON DELETE CASCADE,
+    student_id UUID NOT NULL REFERENCES public.students(id) ON DELETE CASCADE,
+    file_urls TEXT[] NOT NULL,
+    remarks TEXT,
+    status submission_status NOT NULL DEFAULT 'submitted',
+    submitted_at TIMESTAMPTZ DEFAULT NOW(),
+    grade VARCHAR(10),
+    teacher_remarks TEXT,
+    UNIQUE(assignment_id, student_id)
+);
+
+-- Attendance Table
+CREATE TABLE public.attendance (
+    id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+    batch_id UUID NOT NULL REFERENCES public.batches(id) ON DELETE CASCADE,
+    student_id UUID NOT NULL REFERENCES public.students(id) ON DELETE CASCADE,
+    marked_by UUID NOT NULL REFERENCES public.profiles(id),
+    date DATE NOT NULL,
+    status attendance_status NOT NULL DEFAULT 'present',
+    created_at TIMESTAMPTZ DEFAULT NOW(),
+    UNIQUE(batch_id, student_id, date)
+);
