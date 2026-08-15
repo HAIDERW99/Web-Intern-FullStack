@@ -27,9 +27,9 @@ You can test each user role using the pre-seeded credentials or test accounts be
 | Actor / Role | Full Name | Email Address | Password | Permissions & Dashboard Scope |
 | :--- | :--- | :--- | :--- | :--- |
 | 👑 **Superadmin** | Haider Raza | `haiderwahla199@gmail.com` | `superadmin199` | System-wide control, multi-branch management, institute setup, global audit logs & global admin provisioning. |
-| 🏫 **Admin** | Campus Administrator | `admin@academiax.edu` | `admin123456` | Institution level management, user account provisioning, course catalog control, and campus reporting. |
-| 👨‍🏫 **Teacher** | Professor Smith | `teacher@academiax.edu` | `teacher123456` | Course management, daily student attendance logging, assignment creation, and grading portal. |
-| 🎓 **Student** | Alex Johnson | `student@academiax.edu` | `student123456` | Enrolled course overview, assignment submissions, grade reports, and personal academic profile. |
+| 🏫 **Admin** | Campus Administrator | `haiderali76347@gmail.com` | `admin199` | Institution level management, user account provisioning, course catalog control, and campus reporting. |
+| 👨‍🏫 **Teacher** | Dr Ahmed | `juttinsane199@gmail.com` | `teacher199` | Course management, daily student attendance logging, assignment creation, and grading portal. |
+| 🎓 **Student** | Ali raza | `herohaitu07@gmail.com` | `student199` | Enrolled course overview, assignment submissions, grade reports, and personal academic profile. |
 
 > 💡 **Note:** When running locally with Supabase, ensure that seed profiles exist in your Supabase Auth & `profiles` table matching these credentials or create a new user via the `/signup` screen.
 
