@@ -6,7 +6,7 @@
 [![Supabase](https://img.shields.io/badge/Supabase-Database%20%26%20Auth-3ECF8E?style=for-the-badge&logo=supabase&logoColor=white)](https://supabase.com/)
 [![Tailwind CSS](https://img.shields.io/badge/Tailwind-CSS-38B2AC?style=for-the-badge&logo=tailwind-css&logoColor=white)](https://tailwindcss.com/)
 
-> 🌐 **Live Website URL:** [https://hosthaven.vercel.app](https://hosthaven.vercel.app)
+> 🌐 **Live Website URL:** [https://hosthaven.vercel.app](https://hosthavenapi.vercel.app)
 
 ---
 
