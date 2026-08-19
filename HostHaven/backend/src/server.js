@@ -50,6 +50,18 @@ app.use(express.urlencoded({ extended: true }));
 // ─── Routes ──────────────────────────────────────────────────────────────────
 app.use('/api/auth', authRoutes);
 
+// Root route
+app.get('/', (req, res) => {
+  res.json({
+    status: 'online',
+    message: 'HostHaven API is running successfully!',
+    endpoints: {
+      health: '/api/health',
+      auth: '/api/auth'
+    }
+  });
+});
+
 // Health check
 app.get('/api/health', (req, res) => {
   res.json({ status: 'ok', timestamp: new Date().toISOString() });
