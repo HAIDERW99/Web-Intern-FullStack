@@ -1,0 +1,62 @@
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  body {
+    @apply bg-[#f7f9fb] font-sans text-[#191c1e] antialiased;
+  }
+
+  * {
+    @apply box-border;
+  }
+}
+
+@layer components {
+  /* Primary button — Haven Blue */
+  .btn-primary {
+    @apply w-full bg-[#131b2e] text-white font-semibold py-3 px-6 rounded-lg
+           hover:bg-[#1e2d47] active:scale-[0.98] transition-all duration-150
+           focus:outline-none focus:ring-2 focus:ring-[#131b2e] focus:ring-offset-2
+           disabled:opacity-50 disabled:cursor-not-allowed;
+  }
+
+  /* Gold CTA button — Sunset Gold */
+  .btn-gold {
+    @apply w-full bg-[#fea619] text-[#2a1700] font-semibold py-3 px-6 rounded-lg
+           hover:bg-[#e89600] active:scale-[0.98] transition-all duration-150
+           focus:outline-none focus:ring-2 focus:ring-[#fea619] focus:ring-offset-2
+           disabled:opacity-50 disabled:cursor-not-allowed;
+  }
+
+  /* Outlined button */
+  .btn-outline {
+    @apply w-full bg-white text-[#191c1e] font-medium py-3 px-6 rounded-lg
+           border border-[#c6c6cd] hover:bg-[#f2f4f6] active:scale-[0.98]
+           transition-all duration-150 focus:outline-none focus:ring-2
+           focus:ring-[#76777d] focus:ring-offset-2;
+  }
+
+  /* Form input */
+  .form-input {
+    @apply w-full px-3 py-2.5 rounded-lg border border-[#c6c6cd] bg-white
+           text-[#191c1e] text-sm placeholder:text-[#76777d]
+           focus:outline-none focus:border-[#131b2e] focus:ring-2
+           focus:ring-[#131b2e]/10 transition-colors duration-150;
+  }
+
+  .form-input-error {
+    @apply border-red-500 focus:border-red-500 focus:ring-red-500/10;
+  }
+
+  /* Tab toggle */
+  .tab-active {
+    @apply bg-white text-[#191c1e] font-semibold shadow-sm;
+  }
+
+  .tab-inactive {
+    @apply bg-transparent text-[#45464d] font-medium hover:text-[#191c1e];
+  }
+}
