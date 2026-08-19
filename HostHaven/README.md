@@ -26,9 +26,9 @@ You can use the following pre-configured demo credentials to explore all user ro
 
 | Role | Email | Password | Access & Features |
 | :--- | :--- | :--- | :--- |
-| 🛡️ **Admin** | `admin@hosthaven.com` | `admin123` | Full administrative review, property approvals, inventory & bookings control |
-| 🏨 **Hotel Owner** | `owner@hosthaven.com` | `owner123` | Register properties, manage rooms & inventory, track bookings & revenue |
-| 👤 **Customer / Guest** | `customer@hosthaven.com` | `customer123` | Search properties, book rooms, view reservations & submit reviews |
+| 🛡️ **Admin** | `haiderwahla199@gmail.com` | `admin199` | Full administrative review, property approvals, inventory & bookings control |
+| 🏨 **Hotel Owner** | `herohaitu07@gmail.com` | `owner199` | Register properties, manage rooms & inventory, track bookings & revenue |
+| 👤 **Customer / Guest** | `juttinsane199@gmail.com` | `guest199` | Search properties, book rooms, view reservations & submit reviews |
 
 ---
 
