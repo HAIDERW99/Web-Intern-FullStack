@@ -36,11 +36,13 @@ You can use the following pre-configured demo credentials to explore all user ro
 
 ### 1. Explore & Property Discovery
 > *Search and filter through approved luxury hotels, resorts, and apartments.*
-![Explore Page](https://images.unsplash.com/photo-1566073771259-6a8506099945?w=1200&q=80)
+![Explore Page](<img width="1893" height="869" alt="image" src="https://github.com/user-attachments/assets/82e14d70-02e4-499d-a07b-db81a2962884" />
+)
 
 ### 2. Hotel Details & Room Reservation
 > *Real-time booking interface with date pickers, room selection, and price breakdown.*
-![Hotel Detail & Booking](https://images.unsplash.com/photo-1590490360182-c33d57733427?w=1200&q=80)
+![Hotel Detail & Booking](<img width="1898" height="871" alt="image" src="https://github.com/user-attachments/assets/f03a6125-2817-4ca3-8c0a-622e25ed9c55" />
+)
 
 ### 3. Owner Property Registration & Inventory
 > *Multi-step property registration wizard and real-time room inventory management.*
