@@ -44,12 +44,11 @@ You can use the following pre-configured demo credentials to explore all user ro
 
 ### 3. Owner Property Registration & Inventory
 > *Multi-step property registration wizard and real-time room inventory management.*
-![Property Registration](https://images.unsplash.com/photo-1582719508461-905c673771fd?w=1200&q=80)
+<img width="1894" height="879" alt="image" src="https://github.com/user-attachments/assets/85e099d1-97e1-45a2-b610-7ab3d6bc4368" />
 
 ### 4. Admin Verification & Approval Dashboard
 > *Document verification, property approval/rejection modal with direct owner feedback.*
-![Admin Dashboard](https://images.unsplash.com/photo-1551836022-d5d88e9218df?w=1200&q=80)
-
+<img width="1896" height="867" alt="image" src="https://github.com/user-attachments/assets/6287e6c3-754c-4290-bfa2-8a22ad32df5d" />
 ---
 
 ## 🛠️ Technologies Used
