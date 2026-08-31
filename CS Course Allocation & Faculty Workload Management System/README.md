@@ -2,7 +2,7 @@
 
 An intelligent, full-stack departmental platform built for Computer Science and Software Engineering departments to streamline **Academic Planning**, **Course-to-Faculty Allocation**, and **HEC Statutory Workload Compliance**.
 
-🔗 **Live Portal:** `https://smart-course-allocator-system-omega.vercel.app`
+🔗 **Live Portal:** https://smart-course-allocator-system-omega.vercel.app
 
 ---
 
