@@ -142,7 +142,9 @@ The **CS Course Allocation & Faculty Workload Management System** eliminates spr
 <!-- 1. Landing Page & Role Selection -->
 ### 1. Landing Page & Role Authentication
 <!-- Add Landing Page Screenshot -->
-<img width="950" alt="Landing Page" src="https://github.com/user-attachments/assets/placeholder-landing.png" />
+<img width="959" height="442" alt="Screenshot 2026-09-01 002236" src="https://github.com/user-attachments/assets/59f5ec43-3e31-4d63-b02c-9d18adb1781b" />
+<img width="957" height="443" alt="Screenshot 2026-09-01 002303" src="https://github.com/user-attachments/assets/599dfb17-8fdb-48ca-927a-b9936d9a439f" />
+
 
 ---
 
