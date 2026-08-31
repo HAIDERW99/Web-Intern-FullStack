@@ -6,7 +6,7 @@
 [![Supabase](https://img.shields.io/badge/Supabase-Database%20%26%20Auth-3ECF8E?style=for-the-badge&logo=supabase&logoColor=white)](https://supabase.com/)
 [![Tailwind CSS](https://img.shields.io/badge/Tailwind-CSS-38B2AC?style=for-the-badge&logo=tailwind-css&logoColor=white)](https://tailwindcss.com/)
 
-> 🌐 **Live Website URL:** [https://hosthaven.vercel.app](https://hosthaven.vercel.app)
+> 🌐 **Live Website URL:** [https://hosthaven.vercel.app](https://hosthavenapi.vercel.app)
 
 ---
 
@@ -26,9 +26,9 @@ You can use the following pre-configured demo credentials to explore all user ro
 
 | Role | Email | Password | Access & Features |
 | :--- | :--- | :--- | :--- |
-| 🛡️ **Admin** | `admin@hosthaven.com` | `admin123` | Full administrative review, property approvals, inventory & bookings control |
-| 🏨 **Hotel Owner** | `owner@hosthaven.com` | `owner123` | Register properties, manage rooms & inventory, track bookings & revenue |
-| 👤 **Customer / Guest** | `customer@hosthaven.com` | `customer123` | Search properties, book rooms, view reservations & submit reviews |
+| 🛡️ **Admin** | `haiderwahla199@gmail.com` | `admin199` | Full administrative review, property approvals, inventory & bookings control |
+| 🏨 **Hotel Owner** | `herohaitu07@gmail.com` | `owner199` | Register properties, manage rooms & inventory, track bookings & revenue |
+| 👤 **Customer / Guest** | `juttinsane199@gmail.com` | `guest199` | Search properties, book rooms, view reservations & submit reviews |
 
 ---
 
@@ -36,20 +36,19 @@ You can use the following pre-configured demo credentials to explore all user ro
 
 ### 1. Explore & Property Discovery
 > *Search and filter through approved luxury hotels, resorts, and apartments.*
-![Explore Page](https://images.unsplash.com/photo-1566073771259-6a8506099945?w=1200&q=80)
+<img width="1893" height="869" alt="image" src="https://github.com/user-attachments/assets/82e14d70-02e4-499d-a07b-db81a2962884" />
 
 ### 2. Hotel Details & Room Reservation
-> *Real-time booking interface with date pickers, room selection, and price breakdown.*
-![Hotel Detail & Booking](https://images.unsplash.com/photo-1590490360182-c33d57733427?w=1200&q=80)
+> *Real-time booking interface with date pickers, room selection, and price breakdown.
+> <img width="1898" height="871" alt="image" src="https://github.com/user-attachments/assets/f03a6125-2817-4ca3-8c0a-622e25ed9c55" />
 
 ### 3. Owner Property Registration & Inventory
 > *Multi-step property registration wizard and real-time room inventory management.*
-![Property Registration](https://images.unsplash.com/photo-1582719508461-905c673771fd?w=1200&q=80)
+<img width="1894" height="879" alt="image" src="https://github.com/user-attachments/assets/85e099d1-97e1-45a2-b610-7ab3d6bc4368" />
 
 ### 4. Admin Verification & Approval Dashboard
 > *Document verification, property approval/rejection modal with direct owner feedback.*
-![Admin Dashboard](https://images.unsplash.com/photo-1551836022-d5d88e9218df?w=1200&q=80)
-
+<img width="1896" height="867" alt="image" src="https://github.com/user-attachments/assets/6287e6c3-754c-4290-bfa2-8a22ad32df5d" />
 ---
 
 ## 🛠️ Technologies Used
