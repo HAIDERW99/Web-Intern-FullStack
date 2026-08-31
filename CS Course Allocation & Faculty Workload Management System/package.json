@@ -1,0 +1,13 @@
+{
+  "name": "cs-course-allocation-system",
+  "version": "1.0.0",
+  "private": true,
+  "description": "CS Course Allocation & Faculty Workload Management System (SERN Stack)",
+  "scripts": {
+    "dev": "npm --prefix backend run dev",
+    "dev:all": "start npm --prefix backend run dev && start npm --prefix frontend run dev",
+    "backend": "npm --prefix backend run dev",
+    "frontend": "npm --prefix frontend run dev",
+    "build:frontend": "npm --prefix frontend run build"
+  }
+}
