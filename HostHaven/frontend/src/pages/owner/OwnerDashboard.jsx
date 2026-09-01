@@ -41,7 +41,7 @@ export default function OwnerDashboard() {
       if (hotelData) {
         const [roomsRes, bookingsRes, reviewsRes] = await Promise.all([
           supabase.from('rooms').select('*').eq('hotel_id', hotelData.id),
-          supabase.from('bookings').select('*, profiles:customer_id(full_name)').eq('hotel_id', hotelData.id).order('created_at', { ascending: false }),
+          supabase.from('bookings').select('*, profiles:customer_id(full_name), rooms:room_id(type, room_number)').eq('hotel_id', hotelData.id).order('created_at', { ascending: false }),
           supabase.from('reviews').select('*, profiles:customer_id(full_name)').eq('hotel_id', hotelData.id).order('created_at', { ascending: false }),
         ]);
         setRooms(roomsRes.data || []);
@@ -111,8 +111,48 @@ export default function OwnerDashboard() {
   const [cleaningUrgency, setCleaningUrgency] = useState('urgent');
   const [cleaningSuccess, setCleaningSuccess] = useState(false);
 
-  // Calendar Timeline Week Offset
-  const [weekOffset, setWeekOffset]     = useState(0);
+  // ── Dynamic Calendar Timeline Helpers ─────────────────────────────────────
+  const [weekOffset, setWeekOffset] = useState(0);
+
+  const getWeekDays = (offset = 0) => {
+    const now = new Date();
+    const day = now.getDay();
+    // Monday as first day of week (0 = Sunday, 1 = Monday)
+    const diff = (day === 0 ? -6 : 1) - day;
+    const monday = new Date(now);
+    monday.setDate(now.getDate() + diff + offset * 7);
+    monday.setHours(0, 0, 0, 0);
+
+    const days = [];
+    for (let i = 0; i < 7; i++) {
+      const d = new Date(monday);
+      d.setDate(monday.getDate() + i);
+      days.push(d);
+    }
+    return days;
+  };
+
+  const formatDateKey = (date) => {
+    const y = date.getFullYear();
+    const m = String(date.getMonth() + 1).padStart(2, '0');
+    const d = String(date.getDate()).padStart(2, '0');
+    return `${y}-${m}-${d}`;
+  };
+
+  const isTodayDate = (date) => {
+    const today = new Date();
+    return (
+      date.getDate() === today.getDate() &&
+      date.getMonth() === today.getMonth() &&
+      date.getFullYear() === today.getFullYear()
+    );
+  };
+
+  const monthNames = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
+  const weekDays = getWeekDays(weekOffset);
+  const startDay = weekDays[0];
+  const endDay = weekDays[6];
+  const weekRangeText = `${monthNames[startDay.getMonth()]} ${startDay.getDate()} – ${monthNames[endDay.getMonth()]} ${endDay.getDate()}, ${endDay.getFullYear()}`;
 
   // Handlers
   const handleSaveProfile = async (e) => {
@@ -305,96 +345,202 @@ export default function OwnerDashboard() {
           {/* ── Left Column (2/3 width) ── */}
           <div className="lg:col-span-2 space-y-6">
 
-            {/* Reservation Timeline Mockup */}
+            {/* ── Dynamic Reservation Timeline ── */}
             <div className="bg-white rounded-2xl border border-[#e0e3e5] overflow-hidden shadow-xs">
-              <div className="p-5 border-b border-[#e0e3e5] flex justify-between items-center bg-[#f7f9fb]">
+              {/* Header with Navigation Controls */}
+              <div className="p-5 border-b border-[#e0e3e5] flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3 bg-[#f7f9fb]">
                 <div>
-                  <h3 className="font-semibold text-base text-[#191c1e]">Reservation Timeline</h3>
-                  <p className="text-xs text-[#76777d]">Live occupancy view for current week</p>
+                  <div className="flex items-center gap-2">
+                    <h3 className="font-bold text-base text-[#191c1e]">Reservation Timeline</h3>
+                    <span className={`text-[11px] font-bold px-2.5 py-0.5 rounded-full ${
+                      weekOffset === 0
+                        ? 'bg-emerald-100 text-emerald-800 border border-emerald-300'
+                        : weekOffset > 0
+                        ? 'bg-blue-100 text-blue-800 border border-blue-200'
+                        : 'bg-amber-100 text-amber-800 border border-amber-200'
+                    }`}>
+                      {weekOffset === 0 ? '● Current Week' : weekOffset > 0 ? `+${weekOffset} Week${weekOffset > 1 ? 's' : ''}` : `${weekOffset} Week${weekOffset < -1 ? 's' : ''}`}
+                    </span>
+                  </div>
+                  <p className="text-xs font-medium text-[#76777d] mt-0.5">
+                    {weekRangeText} &bull; Live occupancy schedule
+                  </p>
                 </div>
-                <div className="flex items-center gap-2">
+
+                {/* Week Navigation Buttons (< Today >) */}
+                <div className="flex items-center gap-1.5 bg-white p-1 rounded-xl border border-[#c6c6cd] shadow-2xs">
                   <button
+                    type="button"
                     onClick={() => setWeekOffset((w) => w - 1)}
-                    className="p-2 border border-[#c6c6cd] rounded-xl hover:bg-white transition-colors cursor-pointer text-[#45464d]"
+                    className="p-1.5 rounded-lg hover:bg-[#f2f4f6] text-[#45464d] hover:text-[#191c1e] transition-colors cursor-pointer flex items-center justify-center"
                     title="Previous Week"
+                    aria-label="Previous Week"
                   >
                     <span className="material-symbols-outlined text-lg">chevron_left</span>
                   </button>
                   <button
+                    type="button"
                     onClick={() => setWeekOffset(0)}
-                    className="px-3 py-1.5 border border-[#c6c6cd] text-xs font-semibold rounded-xl hover:bg-white transition-colors cursor-pointer text-[#45464d]"
+                    className={`px-3 py-1 text-xs font-bold rounded-lg transition-all cursor-pointer ${
+                      weekOffset === 0
+                        ? 'bg-[#131b2e] text-white shadow-xs'
+                        : 'text-[#45464d] hover:bg-[#f2f4f6] hover:text-[#191c1e]'
+                    }`}
                   >
                     Today
                   </button>
                   <button
+                    type="button"
                     onClick={() => setWeekOffset((w) => w + 1)}
-                    className="p-2 border border-[#c6c6cd] rounded-xl hover:bg-white transition-colors cursor-pointer text-[#45464d]"
+                    className="p-1.5 rounded-lg hover:bg-[#f2f4f6] text-[#45464d] hover:text-[#191c1e] transition-colors cursor-pointer flex items-center justify-center"
                     title="Next Week"
+                    aria-label="Next Week"
                   >
                     <span className="material-symbols-outlined text-lg">chevron_right</span>
                   </button>
                 </div>
               </div>
 
-              <div className="p-5">
-                {/* Days Grid Header */}
-                <div className="grid grid-cols-7 gap-2 mb-3 text-center text-xs font-semibold text-[#45464d]">
-                  <div>Mon</div><div>Tue</div><div>Wed</div><div>Thu</div><div>Fri</div><div>Sat</div><div>Sun</div>
+              {/* 7-Day Timeline Grid */}
+              <div className="p-5 overflow-x-auto">
+                <div className="min-w-[620px]">
+                  {/* Days Header */}
+                  <div className="grid grid-cols-7 gap-2.5 mb-3">
+                    {weekDays.map((dayDate, i) => {
+                      const isToday = isTodayDate(dayDate);
+                      const isWeekend = dayDate.getDay() === 0 || dayDate.getDay() === 6;
+                      const dayName = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'][dayDate.getDay()];
+                      const dateNum = String(dayDate.getDate()).padStart(2, '0');
+
+                      return (
+                        <div
+                          key={i}
+                          className={`flex flex-col items-center justify-center py-2.5 px-1 rounded-xl transition-all ${
+                            isToday
+                              ? 'bg-[#131b2e] text-white shadow-md ring-2 ring-[#fea619]'
+                              : isWeekend
+                              ? 'bg-purple-50/70 border border-purple-200/80 text-purple-950'
+                              : 'bg-[#f7f9fb] border border-[#e0e3e5] text-[#45464d]'
+                          }`}
+                        >
+                          <span className={`text-[10px] font-bold uppercase tracking-wider ${isToday ? 'text-amber-300' : isWeekend ? 'text-purple-600' : 'text-[#76777d]'}`}>
+                            {dayName}
+                          </span>
+                          <span className={`text-base font-extrabold ${isToday ? 'text-white' : 'text-[#191c1e]'}`}>
+                            {dateNum}
+                          </span>
+                          {isToday && (
+                            <span className="text-[9px] font-bold bg-[#fea619] text-[#2a1700] px-1.5 rounded-full mt-0.5 uppercase tracking-tight">
+                              Today
+                            </span>
+                          )}
+                          {isWeekend && !isToday && (
+                            <span className="text-[9px] font-semibold text-purple-600">
+                              Weekend
+                            </span>
+                          )}
+                        </div>
+                      );
+                    })}
+                  </div>
+
+                  {/* Days Body Cells */}
+                  <div className="grid grid-cols-7 gap-2.5">
+                    {weekDays.map((dayDate, i) => {
+                      const dayKey = formatDateKey(dayDate);
+                      const isToday = isTodayDate(dayDate);
+                      const isWeekend = dayDate.getDay() === 0 || dayDate.getDay() === 6;
+
+                      // Filter real bookings active on this date
+                      const dayBookings = bookings.filter((b) => {
+                        if (b.status === 'cancelled') return false;
+                        return b.check_in <= dayKey && dayKey <= b.check_out;
+                      });
+
+                      return (
+                        <div
+                          key={i}
+                          className={`min-h-[140px] rounded-xl p-2 flex flex-col gap-1.5 transition-all relative ${
+                            isToday
+                              ? 'bg-amber-50/40 border-2 border-[#fea619]/60 shadow-xs'
+                              : isWeekend
+                              ? 'bg-purple-50/30 border border-purple-100'
+                              : 'bg-[#f9fafb] border border-[#e0e3e5]'
+                          }`}
+                        >
+                          {/* When real bookings exist */}
+                          {dayBookings.length > 0 ? (
+                            dayBookings.map((b) => {
+                              const guestName = b.profiles?.full_name || 'Guest';
+                              const roomLabel = b.rooms?.room_number ? `Rm ${b.rooms.room_number}` : (b.rooms?.type || 'Suite');
+                              const isCheckIn = b.check_in === dayKey;
+                              const isCheckOut = b.check_out === dayKey;
+
+                              return (
+                                <div
+                                  key={b.id}
+                                  className={`p-2 rounded-lg text-left shadow-2xs text-[11px] leading-tight border transition-transform hover:scale-[1.02] cursor-default ${
+                                    isCheckIn
+                                      ? 'bg-emerald-50 border-emerald-300 text-emerald-950'
+                                      : isCheckOut
+                                      ? 'bg-amber-50 border-amber-300 text-amber-950'
+                                      : 'bg-[#d8e2ff]/80 border-blue-200 text-[#003170]'
+                                  }`}
+                                >
+                                  <div className="flex items-center justify-between gap-1 mb-0.5">
+                                    <span className="font-bold truncate text-[11px]">{guestName}</span>
+                                    <span className="text-[9px] font-extrabold px-1 rounded bg-white/80 border border-black/5">
+                                      {roomLabel}
+                                    </span>
+                                  </div>
+                                  <div className="flex items-center gap-1 text-[9px] opacity-85 font-medium">
+                                    {isCheckIn && <span>🔑 In: {b.check_in.slice(5)}</span>}
+                                    {isCheckOut && <span>🚪 Out: {b.check_out.slice(5)}</span>}
+                                    {!isCheckIn && !isCheckOut && <span>🛏️ Stay</span>}
+                                  </div>
+                                </div>
+                              );
+                            })
+                          ) : (
+                            /* Fallback when no active bookings on that day */
+                            <div className="flex-1 flex flex-col items-center justify-center text-center p-1 opacity-70">
+                              <span className="text-[10px] font-semibold text-[#76777d]">
+                                {isWeekend ? 'Open Stays' : 'Rooms Ready'}
+                              </span>
+                              <span className="text-[9px] text-[#9ca3af] mt-0.5">
+                                {rooms.length > 0 ? `${rooms.length} available` : 'Cleaned'}
+                              </span>
+                            </div>
+                          )}
+                        </div>
+                      );
+                    })}
+                  </div>
                 </div>
 
-                {/* Days Cells */}
-                <div className="grid grid-cols-7 gap-2">
-                  {/* Mon */}
-                  <div className="h-28 bg-[#f2f4f6] rounded-xl p-2 text-xs relative opacity-60">
-                    <span className="text-[10px] font-semibold text-[#76777d]">Cleaned</span>
+                {/* Timeline Legend & Stats */}
+                <div className="mt-4 pt-3.5 border-t border-[#e0e3e5] flex flex-wrap items-center justify-between gap-3 text-xs text-[#76777d]">
+                  <div className="flex flex-wrap items-center gap-4">
+                    <span className="flex items-center gap-1.5 font-medium">
+                      <span className="w-2.5 h-2.5 rounded-full bg-emerald-500 inline-block"></span>
+                      Check-in Day
+                    </span>
+                    <span className="flex items-center gap-1.5 font-medium">
+                      <span className="w-2.5 h-2.5 rounded-full bg-blue-500 inline-block"></span>
+                      Active In-House
+                    </span>
+                    <span className="flex items-center gap-1.5 font-medium">
+                      <span className="w-2.5 h-2.5 rounded-full bg-amber-500 inline-block"></span>
+                      Check-out Day
+                    </span>
                   </div>
 
-                  {/* Tue */}
-                  <div className="h-28 bg-[#f2f4f6] rounded-xl p-2 text-xs relative">
-                    <div className="absolute inset-x-1.5 top-1.5 h-7 bg-[#d8e2ff] text-[#004395] rounded-lg px-2 flex items-center justify-between font-semibold text-[11px] truncate shadow-2xs">
-                      <span>Smith - 201</span>
-                    </div>
-                  </div>
-
-                  {/* Wed */}
-                  <div className="h-28 bg-[#f2f4f6] rounded-xl p-2 text-xs relative">
-                    <div className="absolute inset-x-1.5 top-1.5 h-7 bg-[#d8e2ff] text-[#004395] rounded-lg px-2 flex items-center justify-between font-semibold text-[11px] truncate shadow-2xs">
-                      <span>Smith - 201</span>
-                    </div>
-                    <div className="absolute inset-x-1.5 top-10 h-7 bg-[#ffddb8] text-[#653e00] rounded-lg px-2 flex items-center justify-between font-semibold text-[11px] truncate shadow-2xs">
-                      <span>Doe - 305</span>
-                    </div>
-                  </div>
-
-                  {/* Thu */}
-                  <div className="h-28 bg-[#f2f4f6] rounded-xl p-2 text-xs relative">
-                    <div className="absolute inset-x-1.5 top-10 h-7 bg-[#ffddb8] text-[#653e00] rounded-lg px-2 flex items-center justify-between font-semibold text-[11px] truncate shadow-2xs">
-                      <span>Doe - 305</span>
-                    </div>
-                  </div>
-
-                  {/* Fri */}
-                  <div className="h-28 bg-[#f2f4f6] rounded-xl p-2 text-xs relative">
-                    <div className="absolute inset-x-1.5 top-1.5 h-7 bg-emerald-100 text-emerald-800 rounded-lg px-2 flex items-center justify-between font-semibold text-[11px] truncate shadow-2xs">
-                      <span>Khan - 104</span>
-                    </div>
-                  </div>
-
-                  {/* Sat (Weekend) */}
-                  <div className="h-28 bg-[#dae2fd]/30 border border-[#dae2fd] rounded-xl p-2 text-xs relative">
-                    <div className="absolute inset-x-1.5 top-1.5 h-7 bg-purple-100 text-purple-800 rounded-lg px-2 flex items-center justify-between font-semibold text-[11px] truncate shadow-2xs">
-                      <span>VIP - Suite 1</span>
-                    </div>
-                    <span className="absolute bottom-1.5 right-2 text-[10px] font-bold text-[#3980f4]">Weekend</span>
-                  </div>
-
-                  {/* Sun (Weekend) */}
-                  <div className="h-28 bg-[#dae2fd]/30 border border-[#dae2fd] rounded-xl p-2 text-xs relative">
-                    <div className="absolute inset-x-1.5 top-1.5 h-7 bg-purple-100 text-purple-800 rounded-lg px-2 flex items-center justify-between font-semibold text-[11px] truncate shadow-2xs">
-                      <span>VIP - Suite 1</span>
-                    </div>
-                    <span className="absolute bottom-1.5 right-2 text-[10px] font-bold text-[#3980f4]">Weekend</span>
-                  </div>
+                  <button
+                    onClick={() => navigate('/owner/bookings')}
+                    className="text-xs font-bold text-[#855300] hover:text-[#2a1700] hover:underline flex items-center gap-1 cursor-pointer"
+                  >
+                    View All Bookings &rarr;
+                  </button>
                 </div>
               </div>
             </div>
