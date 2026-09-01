@@ -2,7 +2,7 @@
 
 An intelligent, full-stack departmental platform built for Computer Science and Software Engineering departments to streamline **Academic Planning**, **Course-to-Faculty Allocation**, and **HEC Statutory Workload Compliance**.
 
-🔗 **Live Portal:** `http://localhost:3000`
+🔗 **Live Portal:** https://smart-course-allocator-system-omega.vercel.app
 
 ---
 
@@ -142,63 +142,71 @@ The **CS Course Allocation & Faculty Workload Management System** eliminates spr
 <!-- 1. Landing Page & Role Selection -->
 ### 1. Landing Page & Role Authentication
 <!-- Add Landing Page Screenshot -->
-<img width="950" alt="Landing Page" src="https://github.com/user-attachments/assets/placeholder-landing.png" />
+<img width="959" height="442" alt="Screenshot 2026-09-01 002236" src="https://github.com/user-attachments/assets/59f5ec43-3e31-4d63-b02c-9d18adb1781b" />
+<img width="957" height="443" alt="Screenshot 2026-09-01 002303" src="https://github.com/user-attachments/assets/599dfb17-8fdb-48ca-927a-b9936d9a439f" />
+
 
 ---
 
 <!-- 2. HOD Dashboard & Live Metrics -->
 ### 2. HOD Command Dashboard & Live Metrics
 <!-- Add Dashboard Screenshot -->
-<img width="950" alt="Dashboard Command Centre" src="https://github.com/user-attachments/assets/placeholder-dashboard.png" />
+<img width="959" height="435" alt="Screenshot 2026-09-01 002833" src="https://github.com/user-attachments/assets/6b01daa0-7635-41ee-9e39-22885acb40df" />
 
 ---
 
 <!-- 3. Convener Login & Dynamic Role Privileges Popup -->
 ### 3. Convener Portal & Real-Time Role Privileges Popup
 <!-- Add Convener Permissions Popup Screenshot -->
-<img width="950" alt="Convener Role Guidance Popup" src="https://github.com/user-attachments/assets/placeholder-convener-modal.png" />
+<img width="954" height="440" alt="Screenshot 2026-09-01 003620" src="https://github.com/user-attachments/assets/bc50e14e-e3e0-4a0a-b60b-12674401ea52" />
+
 
 ---
 
 <!-- 4. HOD Real-Time Policy Governance Manager -->
 ### 4. HOD Real-Time Policy Governance Manager
 <!-- Add HOD Permissions Modal Screenshot -->
-<img width="950" alt="HOD Policy Governance Manager" src="https://github.com/user-attachments/assets/placeholder-hod-policy.png" />
+<img width="957" height="436" alt="Screenshot 2026-09-01 003011" src="https://github.com/user-attachments/assets/1bb09590-0078-4866-a7ee-1b301918cac1" />
+
 
 ---
 
 <!-- 5. Course Allocation Matrix & Section Grid -->
 ### 5. Course Allocation Matrix & Section Grid
 <!-- Add Allocations Matrix Screenshot -->
-<img width="950" alt="Allocation Matrix" src="https://github.com/user-attachments/assets/placeholder-allocations.png" />
+<img width="956" height="436" alt="Screenshot 2026-09-01 003201" src="https://github.com/user-attachments/assets/4e46e1fb-8ed6-4343-a93a-8fc81cc7252f" />
+
 
 ---
 
 <!-- 6. Master Course Catalog & HEC Credit Parser Widget -->
 ### 6. Master Course Catalog & HEC Credit Parser Widget
 <!-- Add Courses Page Screenshot -->
-<img width="950" alt="Course Catalog and Credit Parser" src="https://github.com/user-attachments/assets/placeholder-courses.png" />
+<img width="959" height="440" alt="Screenshot 2026-09-01 003308" src="https://github.com/user-attachments/assets/4b148fb8-db43-4d7d-be95-58c3d533c78e" />
+
 
 ---
 
 <!-- 7. Faculty Directory & Statutory Workload Compliance -->
 ### 7. Faculty Directory & Workload Compliance Matrix
 <!-- Add Faculty Directory Screenshot -->
-<img width="950" alt="Faculty Workload Directory" src="https://github.com/user-attachments/assets/placeholder-faculty.png" />
+<img width="959" height="445" alt="Screenshot 2026-09-01 003354" src="https://github.com/user-attachments/assets/dea68e2b-7aaf-4f7a-bb07-9a65e97301bd" />
 
 ---
 
 <!-- 8. Real-Time Conflict Resolution Centre -->
 ### 8. Real-Time Conflict Resolution Centre
 <!-- Add Conflict Centre Screenshot -->
-<img width="950" alt="Conflict Detection Centre" src="https://github.com/user-attachments/assets/placeholder-conflicts.png" />
+<img width="959" height="443" alt="Screenshot 2026-09-01 003429" src="https://github.com/user-attachments/assets/e9234170-b359-466e-8d7d-44e7f2606f3c" />
+
 
 ---
 
 <!-- 9. Academic Planning & Semester Offerings -->
 ### 9. Academic Planning & Session Offerings
 <!-- Add Planning Page Screenshot -->
-<img width="950" alt="Academic Planning" src="https://github.com/user-attachments/assets/placeholder-planning.png" />
+<img width="956" height="440" alt="Screenshot 2026-09-01 003502" src="https://github.com/user-attachments/assets/10f0873b-1c68-43e1-bfa1-a39b178ad645" />
+
 
 ---
 
