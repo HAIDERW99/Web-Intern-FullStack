@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useMemo } from 'react';
 import { useNavigate } from 'react-router-dom';
 import OwnerLayout from './OwnerLayout';
 import { useAuth } from '../../context/AuthContext';
@@ -9,101 +9,26 @@ export default function OwnerDashboard() {
   const navigate = useNavigate();
 
   // ── Real data state ────────────────────────────────────────────────────
-  const [hotel, setHotel]               = useState(null);
+  const [hotels, setHotels]             = useState([]);
+  const [selectedHotelId, setSelectedHotelId] = useState('all');
   const [rooms, setRooms]               = useState([]);
   const [bookings, setBookings]         = useState([]);
   const [reviews, setReviews]           = useState([]);
   const [dataLoading, setDataLoading]   = useState(true);
-
-  // ── Derived real stats ─────────────────────────────────────────────────
-  const totalRevenue = bookings
-    .filter((b) => b.status !== 'cancelled')
-    .reduce((s, b) => s + Number(b.total_amount || 0), 0);
-  const totalBookings    = bookings.length;
-  const availableRooms   = rooms.filter((r) => r.status === 'available').length;
-  const availabilityPct  = rooms.length > 0 ? Math.round((availableRooms / rooms.length) * 100) : 0;
-
-  useEffect(() => {
-    if (!user) return;
-    async function loadData() {
-      setDataLoading(true);
-      // Fetch owner's first hotel
-      const { data: hotelData } = await supabase
-        .from('hotels')
-        .select('*')
-        .eq('owner_id', user.id)
-        .order('created_at', { ascending: false })
-        .limit(1)
-        .maybeSingle();
-
-      setHotel(hotelData);
-
-      if (hotelData) {
-        const [roomsRes, bookingsRes, reviewsRes] = await Promise.all([
-          supabase.from('rooms').select('*').eq('hotel_id', hotelData.id),
-          supabase.from('bookings').select('*, profiles:customer_id(full_name), rooms:room_id(type, room_number)').eq('hotel_id', hotelData.id).order('created_at', { ascending: false }),
-          supabase.from('reviews').select('*, profiles:customer_id(full_name)').eq('hotel_id', hotelData.id).order('created_at', { ascending: false }),
-        ]);
-        setRooms(roomsRes.data || []);
-        setBookings(bookingsRes.data || []);
-        setReviews(reviewsRes.data || []);
-      }
-      setDataLoading(false);
-    }
-    loadData();
-  }, [user]);
-
-  // Profile Details Form State
-  const [propertyName, setPropertyName] = useState('');
-  const [contactEmail, setContactEmail] = useState('');
-  const [basePrice, setBasePrice]       = useState('100');
-  const [profileSaved, setProfileSaved] = useState(false);
-
-  // Sync form with loaded hotel data
-  useEffect(() => {
-    if (hotel) {
-      setPropertyName(hotel.name || '');
-      setContactEmail(hotel.contact_email || profile?.full_name || '');
-      setBasePrice(String(hotel.price_per_night || '100'));
-    } else if (profile) {
-      setPropertyName(profile.full_name ? `${profile.full_name}'s Hotel` : 'My Hotel');
-    }
-  }, [hotel, profile]);
-
-  // Gallery State (from hotel images)
-  const [gallery, setGallery]           = useState([]);
-  const [newImgUrl, setNewImgUrl]       = useState('');
-  const [showUploadModal, setShowUploadModal] = useState(false);
-
-  // Sync gallery with hotel data
-  useEffect(() => {
-    if (hotel) {
-      const imgs = [];
-      if (hotel.image_url) imgs.push({ id: 'cover', alt: 'Cover', src: hotel.image_url });
-      if (hotel.cover_image_url && hotel.cover_image_url !== hotel.image_url)
-        imgs.push({ id: 'cover2', alt: 'Cover 2', src: hotel.cover_image_url });
-      // fallback if no images
-      if (imgs.length === 0) imgs.push(
-        { id: 1, alt: 'Lobby', src: 'https://images.unsplash.com/photo-1582719478250-c89cae4dc85b?w=800&q=80' },
-        { id: 2, alt: 'Room',  src: 'https://images.unsplash.com/photo-1590490360182-c33d57733427?w=800&q=80' }
-      );
-      setGallery(imgs);
-    }
-  }, [hotel]);
-
-  // Reviews State
-  const [selectedReview, setSelectedReview] = useState(null);
-  const [replyText, setReplyText]       = useState('');
+  const [updatingBookingId, setUpdatingBookingId] = useState(null);
+  const [toastMessage, setToastMessage] = useState('');
 
   // Modals
   const [showAddRoomModal, setShowAddRoomModal] = useState(false);
   const [showCleaningModal, setShowCleaningModal] = useState(false);
+  const [showUploadModal, setShowUploadModal]   = useState(false);
 
   // Add Room Form State
-  const [newRoomNum, setNewRoomNum]     = useState('');
-  const [newRoomType, setNewRoomType]   = useState('Deluxe Suite');
-  const [newRoomRate, setNewRoomRate]   = useState('250');
-  const [addingRoom, setAddingRoom]     = useState(false);
+  const [newRoomHotelId, setNewRoomHotelId] = useState('');
+  const [newRoomNum, setNewRoomNum]         = useState('');
+  const [newRoomType, setNewRoomType]       = useState('Deluxe Suite');
+  const [newRoomRate, setNewRoomRate]       = useState('250');
+  const [addingRoom, setAddingRoom]         = useState(false);
 
   // Cleaning Service Form State
   const [cleaningRoom, setCleaningRoom] = useState('');
@@ -111,13 +36,237 @@ export default function OwnerDashboard() {
   const [cleaningUrgency, setCleaningUrgency] = useState('urgent');
   const [cleaningSuccess, setCleaningSuccess] = useState(false);
 
-  // ── Dynamic Calendar Timeline Helpers ─────────────────────────────────────
-  const [weekOffset, setWeekOffset] = useState(0);
+  // Profile Details Form State
+  const [propertyName, setPropertyName] = useState('');
+  const [contactEmail, setContactEmail] = useState('');
+  const [basePrice, setBasePrice]       = useState('100');
+  const [profileSaved, setProfileSaved] = useState(false);
 
+  // Gallery State
+  const [gallery, setGallery]           = useState([]);
+  const [newImgUrl, setNewImgUrl]       = useState('');
+
+  // Reviews State
+  const [selectedReview, setSelectedReview] = useState(null);
+  const [replyText, setReplyText]       = useState('');
+
+  // Timeline Navigation
+  const [weekOffset, setWeekOffset]     = useState(0);
+
+  const showToast = (msg) => {
+    setToastMessage(msg);
+    setTimeout(() => setToastMessage(''), 3000);
+  };
+
+  // ── Fetch all owner properties, rooms, bookings, and reviews ─────────────
+  async function loadDashboardData() {
+    if (!user) return;
+    setDataLoading(true);
+
+    try {
+      const { data: ownerHotels, error: hErr } = await supabase
+        .from('hotels')
+        .select('*')
+        .eq('owner_id', user.id)
+        .order('created_at', { ascending: false });
+
+      if (hErr) console.error(hErr);
+      const fetchedHotels = ownerHotels || [];
+      setHotels(fetchedHotels);
+
+      if (fetchedHotels.length > 0) {
+        const hotelIds = fetchedHotels.map((h) => h.id);
+
+        const [roomsRes, bookingsRes, reviewsRes] = await Promise.all([
+          supabase
+            .from('rooms')
+            .select('*, hotels:hotel_id(name)')
+            .in('hotel_id', hotelIds)
+            .order('room_number'),
+          supabase
+            .from('bookings')
+            .select('*, profiles:customer_id(full_name, email, phone), hotels:hotel_id(name), rooms:room_id(type, room_number)')
+            .in('hotel_id', hotelIds)
+            .order('created_at', { ascending: false }),
+          supabase
+            .from('reviews')
+            .select('*, profiles:customer_id(full_name), hotels:hotel_id(name)')
+            .in('hotel_id', hotelIds)
+            .order('created_at', { ascending: false }),
+        ]);
+
+        setRooms(roomsRes.data || []);
+        setBookings(bookingsRes.data || []);
+        setReviews(reviewsRes.data || []);
+
+        if (!newRoomHotelId && fetchedHotels[0]) {
+          setNewRoomHotelId(fetchedHotels[0].id);
+        }
+      } else {
+        setRooms([]);
+        setBookings([]);
+        setReviews([]);
+      }
+    } catch (err) {
+      console.error(err);
+    } finally {
+      setDataLoading(false);
+    }
+  }
+
+  useEffect(() => {
+    loadDashboardData();
+  }, [user]);
+
+  // ── Real-time Supabase subscriptions ──────────────────────────────────
+  useEffect(() => {
+    if (!user) return;
+    const channel = supabase
+      .channel(`owner-dashboard-realtime-${user.id}`)
+      .on('postgres_changes', { event: '*', schema: 'public', table: 'bookings' }, () => {
+        loadDashboardData();
+      })
+      .on('postgres_changes', { event: '*', schema: 'public', table: 'rooms' }, () => {
+        loadDashboardData();
+      })
+      .on('postgres_changes', { event: '*', schema: 'public', table: 'hotels' }, () => {
+        loadDashboardData();
+      })
+      .subscribe();
+
+    return () => {
+      supabase.removeChannel(channel);
+    };
+  }, [user]);
+
+  // Active Hotel (if individual selected, or first hotel as fallback for single property profile)
+  const currentHotel = useMemo(() => {
+    if (selectedHotelId === 'all') return hotels[0] || null;
+    return hotels.find((h) => h.id === selectedHotelId) || hotels[0] || null;
+  }, [hotels, selectedHotelId]);
+
+  // Sync profile form when currentHotel changes
+  useEffect(() => {
+    if (currentHotel) {
+      setPropertyName(currentHotel.name || '');
+      setContactEmail(currentHotel.contact_email || profile?.email || '');
+      setBasePrice(String(currentHotel.price_per_night || '100'));
+    } else if (profile) {
+      setPropertyName(profile.full_name ? `${profile.full_name}'s Hotel` : 'My Hotel');
+    }
+  }, [currentHotel, profile]);
+
+  // ── Persistent Gallery Sync with LocalStorage & Supabase ──────────────
+  useEffect(() => {
+    if (!currentHotel) return;
+    const key = `hosthaven_gallery_${currentHotel.id}`;
+    const saved = localStorage.getItem(key);
+    if (saved) {
+      try {
+        setGallery(JSON.parse(saved));
+        return;
+      } catch (e) {
+        console.error(e);
+      }
+    }
+
+    const imgs = [];
+    if (currentHotel.image_url) imgs.push({ id: 'img-main', alt: 'Main Photo', src: currentHotel.image_url });
+    if (currentHotel.cover_image_url && currentHotel.cover_image_url !== currentHotel.image_url) {
+      imgs.push({ id: 'img-cover', alt: 'Cover Photo', src: currentHotel.cover_image_url });
+    }
+    if (imgs.length === 0) {
+      imgs.push(
+        { id: 1, alt: 'Lobby', src: 'https://images.unsplash.com/photo-1582719478250-c89cae4dc85b?w=800&q=80' },
+        { id: 2, alt: 'Room',  src: 'https://images.unsplash.com/photo-1590490360182-c33d57733427?w=800&q=80' }
+      );
+    }
+    setGallery(imgs);
+  }, [currentHotel]);
+
+  const handleAddImage = async (e) => {
+    e.preventDefault();
+    if (!newImgUrl.trim()) return;
+    const url = newImgUrl.trim();
+
+    const newImg = { id: `img-${Date.now()}`, alt: 'Property Photo', src: url };
+    const updated = [newImg, ...gallery];
+    setGallery(updated);
+
+    if (currentHotel) {
+      const key = `hosthaven_gallery_${currentHotel.id}`;
+      localStorage.setItem(key, JSON.stringify(updated));
+
+      // Persist to Supabase
+      await supabase
+        .from('hotels')
+        .update({ cover_image_url: url, image_url: currentHotel.image_url || url })
+        .eq('id', currentHotel.id);
+    }
+
+    setNewImgUrl('');
+    setShowUploadModal(false);
+    showToast('Photo added and saved permanently! 📸');
+  };
+
+  const handleDeleteImage = (id) => {
+    const updated = gallery.filter((item) => item.id !== id);
+    setGallery(updated);
+    if (currentHotel) {
+      const key = `hosthaven_gallery_${currentHotel.id}`;
+      localStorage.setItem(key, JSON.stringify(updated));
+    }
+    showToast('Photo removed.');
+  };
+
+  // ── Derived filtered data & real-time stats ─────────────────────────────
+  const displayRooms = useMemo(() => {
+    if (selectedHotelId === 'all') return rooms;
+    return rooms.filter((r) => r.hotel_id === selectedHotelId);
+  }, [rooms, selectedHotelId]);
+
+  const displayBookings = useMemo(() => {
+    if (selectedHotelId === 'all') return bookings;
+    return bookings.filter((b) => b.hotel_id === selectedHotelId);
+  }, [bookings, selectedHotelId]);
+
+  const totalRevenue = useMemo(() => {
+    return displayBookings
+      .filter((b) => b.status !== 'cancelled')
+      .reduce((s, b) => s + Number(b.total_amount || 0), 0);
+  }, [displayBookings]);
+
+  const totalBookingsCount = displayBookings.length;
+  const confirmedBookingsCount = displayBookings.filter((b) => b.status === 'confirmed' || b.status === 'checked_in').length;
+  const availableRoomsCount = displayRooms.filter((r) => r.status === 'available').length;
+  const totalRoomsCount = displayRooms.length;
+  const availabilityPct = totalRoomsCount > 0 ? Math.round((availableRoomsCount / totalRoomsCount) * 100) : 0;
+
+  // ── Booking Status Actions (Check-In & Check-Out) ────────────────────────
+  const handleUpdateBookingStatus = async (bookingId, nextStatus, msg) => {
+    setUpdatingBookingId(bookingId);
+    setBookings((prev) =>
+      prev.map((b) => (b.id === bookingId ? { ...b, status: nextStatus } : b))
+    );
+
+    const { error } = await supabase
+      .from('bookings')
+      .update({ status: nextStatus })
+      .eq('id', bookingId);
+
+    if (!error) {
+      showToast(msg || `Booking updated to ${nextStatus}!`);
+    } else {
+      console.error(error);
+      loadDashboardData();
+    }
+    setUpdatingBookingId(null);
+  };
+
+  // ── 7-Day Timeline Helpers ──────────────────────────────────────────────
   const getWeekDays = (offset = 0) => {
     const now = new Date();
     const day = now.getDay();
-    // Monday as first day of week (0 = Sunday, 1 = Monday)
     const diff = (day === 0 ? -6 : 1) - day;
     const monday = new Date(now);
     monday.setDate(now.getDate() + diff + offset * 7);
@@ -154,33 +303,19 @@ export default function OwnerDashboard() {
   const endDay = weekDays[6];
   const weekRangeText = `${monthNames[startDay.getMonth()]} ${startDay.getDate()} – ${monthNames[endDay.getMonth()]} ${endDay.getDate()}, ${endDay.getFullYear()}`;
 
-  // Handlers
+  // Form Handlers
   const handleSaveProfile = async (e) => {
     e.preventDefault();
-    if (hotel) {
+    if (currentHotel) {
       await supabase.from('hotels').update({
         name: propertyName,
         contact_email: contactEmail,
         price_per_night: Number(basePrice),
-      }).eq('id', hotel.id);
+      }).eq('id', currentHotel.id);
+      setProfileSaved(true);
+      showToast('Property details saved successfully!');
+      setTimeout(() => setProfileSaved(false), 3000);
     }
-    setProfileSaved(true);
-    setTimeout(() => setProfileSaved(false), 3000);
-  };
-
-  const handleAddImage = (e) => {
-    e.preventDefault();
-    if (!newImgUrl.trim()) return;
-    setGallery([
-      ...gallery,
-      { id: Date.now(), alt: 'Property Photo', src: newImgUrl.trim() },
-    ]);
-    setNewImgUrl('');
-    setShowUploadModal(false);
-  };
-
-  const handleDeleteImage = (id) => {
-    setGallery(gallery.filter((item) => item.id !== id));
   };
 
   const handleSendReply = async (e) => {
@@ -194,113 +329,113 @@ export default function OwnerDashboard() {
     );
     setSelectedReview(null);
     setReplyText('');
+    showToast('Reply sent to guest!');
   };
 
   const handleAddRoomSubmit = async (e) => {
     e.preventDefault();
-    if (!newRoomNum.trim() || !hotel) return;
+    const targetHotelId = newRoomHotelId || currentHotel?.id;
+    if (!newRoomNum.trim() || !targetHotelId) return;
     setAddingRoom(true);
+
     const { data, error } = await supabase.from('rooms').insert([{
-      hotel_id:    hotel.id,
+      hotel_id:    targetHotelId,
       room_number: newRoomNum.trim(),
       type:        newRoomType,
       price:       Number(newRoomRate),
       status:      'available',
-    }]).select().maybeSingle();
+    }]).select('*, hotels:hotel_id(name)').maybeSingle();
+
     if (!error && data) {
       setRooms((prev) => [...prev, data]);
+      showToast(`Room #${newRoomNum} added to inventory! 🛏️`);
+      setShowAddRoomModal(false);
+      setNewRoomNum('');
+    } else {
+      alert(`Error adding room: ${error?.message || 'Unknown error'}`);
     }
     setAddingRoom(false);
-    setShowAddRoomModal(false);
-    setNewRoomNum('');
   };
 
   const handleCleaningSubmit = (e) => {
     e.preventDefault();
     setCleaningSuccess(true);
+    showToast('Cleaning request submitted!');
     setTimeout(() => {
       setCleaningSuccess(false);
       setShowCleaningModal(false);
-    }, 2000);
+    }, 1500);
   };
 
   return (
     <OwnerLayout onAddRoomClick={() => setShowAddRoomModal(true)}>
       <div className="space-y-6">
 
-        {/* ── Header Actions ── */}
+        {/* ── Top Header Actions ── */}
         <header className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
           <div>
-            <h1 className="text-2xl sm:text-3xl font-semibold text-[#191c1e] tracking-tight">Overview</h1>
-            <p className="text-sm text-[#45464d] mt-0.5">
-              Welcome back to <span className="font-semibold text-[#191c1e]">{propertyName}</span> operations.
+            <h1 className="text-2xl sm:text-3xl font-extrabold text-[#191c1e] tracking-tight">Overview</h1>
+            <p className="text-xs sm:text-sm text-[#45464d] mt-0.5">
+              Welcome back to <span className="font-bold text-[#191c1e]">{selectedHotelId === 'all' ? 'All Properties' : currentHotel?.name || 'Hotel'}</span> operations.
             </p>
           </div>
-          <div className="flex flex-wrap items-center gap-3">
-            {hotel && (hotel.status === 'changes_requested' || hotel.status === 'rejected') && (
-              <button
-                onClick={() => navigate(`/owner/register-property?edit=${hotel.id}`)}
-                className="bg-amber-600 text-white px-4 py-2.5 rounded-xl text-xs font-bold hover:bg-amber-700 transition-all flex items-center gap-1.5 shadow-sm cursor-pointer whitespace-nowrap animate-pulse"
+
+          <div className="flex flex-wrap items-center gap-2.5 w-full sm:w-auto">
+            {/* Multi-Property Switcher */}
+            {hotels.length > 1 && (
+              <select
+                value={selectedHotelId}
+                onChange={(e) => setSelectedHotelId(e.target.value)}
+                className="bg-white border border-[#c6c6cd] text-[#191c1e] text-xs font-bold px-3 py-2.5 rounded-xl shadow-xs outline-none focus:border-[#131b2e] cursor-pointer"
               >
-                <span className="material-symbols-outlined text-base">edit_note</span>
-                Edit & Resubmit Property
-              </button>
+                <option value="all">🏢 All Properties ({hotels.length})</option>
+                {hotels.map((h) => (
+                  <option key={h.id} value={h.id}>🏨 {h.name}</option>
+                ))}
+              </select>
             )}
+
             <button
               onClick={() => navigate('/owner/register-property')}
-              className="bg-[#fea619] text-[#2a1700] px-4 py-2.5 rounded-xl text-xs font-bold hover:bg-[#e59410] transition-all flex items-center gap-1.5 shadow-sm cursor-pointer whitespace-nowrap"
+              className="bg-[#fea619] text-[#2a1700] px-4 py-2.5 rounded-xl text-xs font-bold hover:bg-[#e59410] transition-all flex items-center gap-1.5 shadow-sm cursor-pointer whitespace-nowrap active:scale-95"
             >
               <span className="material-symbols-outlined text-base">domain_add</span>
               + Register New Hotel
             </button>
+
             <button
               onClick={() => setShowCleaningModal(true)}
-              className="bg-[#131b2e] text-white px-5 py-2.5 rounded-xl text-xs font-semibold hover:bg-[#1e2d47] transition-all flex items-center gap-2 shadow-sm cursor-pointer whitespace-nowrap"
+              className="bg-[#131b2e] text-white px-4 py-2.5 rounded-xl text-xs font-semibold hover:bg-[#1e2d47] transition-all flex items-center gap-1.5 shadow-sm cursor-pointer whitespace-nowrap active:scale-95"
             >
-              <span className="material-symbols-outlined text-lg">cleaning_services</span>
-              Request Free Cleaning Service
+              <span className="material-symbols-outlined text-base">cleaning_services</span>
+              Request Free Cleaning
             </button>
           </div>
         </header>
 
-        {/* ── Admin Feedback Alert Banner ── */}
-        {hotel && (hotel.status === 'changes_requested' || hotel.status === 'rejected') && (
-          <div className="p-5 bg-amber-50 border-2 border-amber-300 rounded-2xl flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 shadow-xs">
-            <div className="flex items-start gap-3.5">
-              <span className="material-symbols-outlined text-2xl text-amber-700 mt-0.5">notification_important</span>
-              <div>
-                <h3 className="font-bold text-sm text-amber-900">
-                  {hotel.status === 'changes_requested' ? 'Admin Requires Additional Information / Documents' : 'Property Registration Needs Revision'}
-                </h3>
-                <p className="text-xs text-amber-800 mt-1 leading-relaxed">
-                  <strong>Admin Feedback:</strong> {hotel.admin_notes || hotel.rejection_reason || 'Please update property details and resubmit for approval.'}
-                </p>
-              </div>
-            </div>
-            <button
-              onClick={() => navigate(`/owner/register-property?edit=${hotel.id}`)}
-              className="bg-amber-800 text-white px-5 py-2.5 rounded-xl text-xs font-bold hover:bg-amber-900 transition-colors whitespace-nowrap cursor-pointer flex-shrink-0"
-            >
-              Edit & Resubmit Application ➔
-            </button>
+        {/* Toast Alert */}
+        {toastMessage && (
+          <div className="p-3 bg-emerald-50 border border-emerald-200 text-emerald-800 text-xs font-semibold rounded-xl flex items-center gap-2 animate-fadeIn">
+            <span className="material-symbols-outlined text-base text-emerald-600">check_circle</span>
+            {toastMessage}
           </div>
         )}
 
-        {/* ── Stats Bento Grid ── */}
+        {/* ── Stats Bento Grid (Real-Time Synced) ── */}
         <section className="grid grid-cols-1 md:grid-cols-3 gap-5">
           {/* Revenue */}
           <div className="bg-white rounded-2xl p-6 border border-[#e0e3e5] flex flex-col justify-between shadow-xs">
             <div className="flex justify-between items-start">
-              <span className="text-xs font-semibold text-[#45464d] uppercase tracking-wide">Total Revenue</span>
+              <span className="text-xs font-bold text-[#45464d] uppercase tracking-wide">Total Revenue</span>
               <span className="material-symbols-outlined text-[#855300] bg-[#ffddb8]/60 p-2.5 rounded-xl text-xl">payments</span>
             </div>
             <div className="mt-3">
-              <div className="text-3xl sm:text-4xl font-bold text-[#191c1e] tracking-tight">
+              <div className="text-3xl sm:text-4xl font-extrabold text-[#191c1e] tracking-tight">
                 {dataLoading ? '…' : `$${totalRevenue.toLocaleString()}`}
               </div>
-              <div className="flex items-center gap-1 text-xs font-medium text-emerald-600 mt-2">
+              <div className="flex items-center gap-1 text-xs font-semibold text-emerald-600 mt-2">
                 <span className="material-symbols-outlined text-base">trending_up</span>
-                <span>From {totalBookings} total bookings</span>
+                <span>From {totalBookingsCount} total bookings</span>
               </div>
             </div>
           </div>
@@ -308,31 +443,31 @@ export default function OwnerDashboard() {
           {/* Bookings */}
           <div className="bg-white rounded-2xl p-6 border border-[#e0e3e5] flex flex-col justify-between shadow-xs">
             <div className="flex justify-between items-start">
-              <span className="text-xs font-semibold text-[#45464d] uppercase tracking-wide">Total Bookings</span>
+              <span className="text-xs font-bold text-[#45464d] uppercase tracking-wide">Total Bookings</span>
               <span className="material-symbols-outlined text-[#3980f4] bg-[#d8e2ff]/60 p-2.5 rounded-xl text-xl">book_online</span>
             </div>
             <div className="mt-3">
-              <div className="text-3xl sm:text-4xl font-bold text-[#191c1e] tracking-tight">
-                {dataLoading ? '…' : totalBookings}
+              <div className="text-3xl sm:text-4xl font-extrabold text-[#191c1e] tracking-tight">
+                {dataLoading ? '…' : totalBookingsCount}
               </div>
-              <div className="flex items-center gap-1 text-xs font-medium text-[#45464d] mt-2">
-                <span>{bookings.filter(b => b.status === 'confirmed').length} confirmed</span>
+              <div className="flex items-center gap-1 text-xs font-semibold text-[#45464d] mt-2">
+                <span className="text-emerald-600 font-bold">{confirmedBookingsCount} active/confirmed</span>
               </div>
             </div>
           </div>
 
-          {/* Availability */}
+          {/* Room Availability (Exact Real-Time Numbers) */}
           <div className="bg-white rounded-2xl p-6 border border-[#e0e3e5] flex flex-col justify-between shadow-xs relative overflow-hidden">
             <div className="flex justify-between items-start relative z-10">
-              <span className="text-xs font-semibold text-[#45464d] uppercase tracking-wide">Room Availability</span>
+              <span className="text-xs font-bold text-[#45464d] uppercase tracking-wide">Room Availability</span>
               <span className="material-symbols-outlined text-[#131b2e] bg-[#dae2fd] p-2.5 rounded-xl text-xl">key</span>
             </div>
             <div className="mt-3 relative z-10">
-              <div className="text-3xl sm:text-4xl font-bold text-[#191c1e] tracking-tight">
+              <div className="text-3xl sm:text-4xl font-extrabold text-[#191c1e] tracking-tight">
                 {dataLoading ? '…' : `${availabilityPct}%`}
               </div>
-              <div className="flex items-center gap-1 text-xs font-medium text-[#45464d] mt-2">
-                <span>{dataLoading ? '…' : `${availableRooms} of ${rooms.length} rooms available`}</span>
+              <div className="flex items-center gap-1 text-xs font-semibold text-[#45464d] mt-2">
+                <span>{dataLoading ? '…' : `${availableRoomsCount} of ${totalRoomsCount} rooms available`}</span>
               </div>
             </div>
             <div className="absolute bottom-0 right-0 left-0 h-10 bg-gradient-to-t from-[#dae2fd]/40 to-transparent pointer-events-none" />
@@ -451,64 +586,57 @@ export default function OwnerDashboard() {
                       const isToday = isTodayDate(dayDate);
                       const isWeekend = dayDate.getDay() === 0 || dayDate.getDay() === 6;
 
-                      // Filter real bookings active on this date
-                      const dayBookings = bookings.filter((b) => {
+                      // Find bookings on that day
+                      const dayBookings = displayBookings.filter((b) => {
                         if (b.status === 'cancelled') return false;
-                        return b.check_in <= dayKey && dayKey <= b.check_out;
+                        const start = b.check_in;
+                        const end = b.check_out;
+                        return dayKey >= start && dayKey <= end;
                       });
 
                       return (
                         <div
                           key={i}
-                          className={`min-h-[140px] rounded-xl p-2 flex flex-col gap-1.5 transition-all relative ${
+                          className={`min-h-[140px] rounded-xl p-2 flex flex-col justify-between border transition-all ${
                             isToday
-                              ? 'bg-amber-50/40 border-2 border-[#fea619]/60 shadow-xs'
-                              : isWeekend
-                              ? 'bg-purple-50/30 border border-purple-100'
-                              : 'bg-[#f9fafb] border border-[#e0e3e5]'
+                              ? 'bg-amber-50/60 border-amber-300 shadow-xs'
+                              : 'bg-[#fafafa] border-[#e0e3e5]'
                           }`}
                         >
-                          {/* When real bookings exist */}
                           {dayBookings.length > 0 ? (
-                            dayBookings.map((b) => {
+                            dayBookings.slice(0, 2).map((b) => {
+                              const isStart = b.check_in === dayKey;
+                              const isEnd = b.check_out === dayKey;
                               const guestName = b.profiles?.full_name || 'Guest';
-                              const roomLabel = b.rooms?.room_number ? `Rm ${b.rooms.room_number}` : (b.rooms?.type || 'Suite');
-                              const isCheckIn = b.check_in === dayKey;
-                              const isCheckOut = b.check_out === dayKey;
 
                               return (
                                 <div
                                   key={b.id}
-                                  className={`p-2 rounded-lg text-left shadow-2xs text-[11px] leading-tight border transition-transform hover:scale-[1.02] cursor-default ${
-                                    isCheckIn
-                                      ? 'bg-emerald-50 border-emerald-300 text-emerald-950'
-                                      : isCheckOut
-                                      ? 'bg-amber-50 border-amber-300 text-amber-950'
-                                      : 'bg-[#d8e2ff]/80 border-blue-200 text-[#003170]'
+                                  className={`rounded-lg p-2 text-xs font-semibold mb-1 shadow-2xs border ${
+                                    isStart
+                                      ? 'bg-emerald-50 text-emerald-900 border-emerald-300'
+                                      : isEnd
+                                      ? 'bg-amber-50 text-amber-900 border-amber-300'
+                                      : 'bg-blue-50 text-blue-900 border-blue-200'
                                   }`}
                                 >
-                                  <div className="flex items-center justify-between gap-1 mb-0.5">
-                                    <span className="font-bold truncate text-[11px]">{guestName}</span>
-                                    <span className="text-[9px] font-extrabold px-1 rounded bg-white/80 border border-black/5">
-                                      {roomLabel}
+                                  <div className="flex items-center justify-between text-[10px] font-bold">
+                                    <span className="truncate">{b.rooms?.room_number ? `#${b.rooms.room_number}` : 'Room'}</span>
+                                    <span className="text-[9px] uppercase">
+                                      {isStart ? 'Check-In' : isEnd ? 'Check-Out' : 'Stay'}
                                     </span>
                                   </div>
-                                  <div className="flex items-center gap-1 text-[9px] opacity-85 font-medium">
-                                    {isCheckIn && <span>🔑 In: {b.check_in.slice(5)}</span>}
-                                    {isCheckOut && <span>🚪 Out: {b.check_out.slice(5)}</span>}
-                                    {!isCheckIn && !isCheckOut && <span>🛏️ Stay</span>}
-                                  </div>
+                                  <div className="text-[11px] font-bold truncate mt-0.5">{guestName}</div>
                                 </div>
                               );
                             })
                           ) : (
-                            /* Fallback when no active bookings on that day */
                             <div className="flex-1 flex flex-col items-center justify-center text-center p-1 opacity-70">
                               <span className="text-[10px] font-semibold text-[#76777d]">
                                 {isWeekend ? 'Open Stays' : 'Rooms Ready'}
                               </span>
                               <span className="text-[9px] text-[#9ca3af] mt-0.5">
-                                {rooms.length > 0 ? `${rooms.length} available` : 'Cleaned'}
+                                {displayRooms.length > 0 ? `${displayRooms.length} available` : 'Cleaned'}
                               </span>
                             </div>
                           )}
@@ -518,7 +646,7 @@ export default function OwnerDashboard() {
                   </div>
                 </div>
 
-                {/* Timeline Legend & Stats */}
+                {/* Timeline Legend & Quick Action */}
                 <div className="mt-4 pt-3.5 border-t border-[#e0e3e5] flex flex-wrap items-center justify-between gap-3 text-xs text-[#76777d]">
                   <div className="flex flex-wrap items-center gap-4">
                     <span className="flex items-center gap-1.5 font-medium">
@@ -545,12 +673,90 @@ export default function OwnerDashboard() {
               </div>
             </div>
 
-            {/* Property Gallery */}
+            {/* ── Active Bookings Live Check-In / Check-Out Controls ── */}
             <div className="bg-white rounded-2xl p-6 border border-[#e0e3e5] shadow-xs">
               <div className="flex justify-between items-center mb-4">
                 <div>
-                  <h3 className="font-semibold text-base text-[#191c1e]">Property Gallery</h3>
-                  <p className="text-xs text-[#76777d]">Showcase your hotel rooms & facilities</p>
+                  <h3 className="font-bold text-base text-[#191c1e]">Active Stays & Check-In Operations</h3>
+                  <p className="text-xs text-[#76777d]">Perform instant Guest Check-In & Check-Out status updates</p>
+                </div>
+                <span className="text-xs font-bold px-2.5 py-1 bg-[#131b2e] text-white rounded-full">
+                  {displayBookings.filter(b => b.status === 'confirmed' || b.status === 'checked_in').length} In-House / Upcoming
+                </span>
+              </div>
+
+              {displayBookings.length === 0 ? (
+                <p className="text-xs text-[#76777d] py-6 text-center">No active bookings currently for this property.</p>
+              ) : (
+                <div className="divide-y divide-[#f2f4f6]">
+                  {displayBookings.slice(0, 4).map((b) => {
+                    const isUpdating = updatingBookingId === b.id;
+                    const guestName = b.profiles?.full_name || 'Guest';
+
+                    return (
+                      <div key={b.id} className="py-3 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3">
+                        <div>
+                          <div className="flex items-center gap-2">
+                            <span className="font-bold text-sm text-[#191c1e]">{guestName}</span>
+                            <span className={`text-[10px] font-bold px-2 py-0.5 rounded-full uppercase ${
+                              b.status === 'checked_in'
+                                ? 'bg-emerald-100 text-emerald-800'
+                                : b.status === 'confirmed'
+                                ? 'bg-blue-100 text-blue-800'
+                                : b.status === 'completed'
+                                ? 'bg-purple-100 text-purple-800'
+                                : 'bg-gray-100 text-gray-700'
+                            }`}>
+                              {b.status?.replace('_', ' ')}
+                            </span>
+                          </div>
+                          <p className="text-xs text-[#76777d] mt-0.5">
+                            {b.hotels?.name} &bull; {b.rooms?.type || 'Room'}{b.rooms?.room_number ? ` #${b.rooms.room_number}` : ''} &bull; {b.check_in} to {b.check_out}
+                          </p>
+                        </div>
+
+                        <div className="flex items-center gap-2 self-end sm:self-center">
+                          {(b.status === 'confirmed' || b.status === 'pending') && (
+                            <button
+                              onClick={() => handleUpdateBookingStatus(b.id, 'checked_in', `Guest ${guestName} checked in!`)}
+                              disabled={isUpdating}
+                              className="px-3 py-1.5 text-xs font-bold text-white bg-emerald-600 hover:bg-emerald-700 rounded-xl transition-all shadow-xs cursor-pointer disabled:opacity-50 flex items-center gap-1"
+                            >
+                              <span className="material-symbols-outlined text-sm">key</span>
+                              <span>Check In</span>
+                            </button>
+                          )}
+
+                          {b.status === 'checked_in' && (
+                            <button
+                              onClick={() => handleUpdateBookingStatus(b.id, 'completed', `Guest ${guestName} checked out!`)}
+                              disabled={isUpdating}
+                              className="px-3 py-1.5 text-xs font-bold text-white bg-[#004395] hover:bg-[#003170] rounded-xl transition-all shadow-xs cursor-pointer disabled:opacity-50 flex items-center gap-1"
+                            >
+                              <span className="material-symbols-outlined text-sm">logout</span>
+                              <span>Check Out</span>
+                            </button>
+                          )}
+
+                          {b.status === 'completed' && (
+                            <span className="text-xs font-semibold text-purple-700 bg-purple-50 px-2.5 py-1 rounded-lg">
+                              Completed ✅
+                            </span>
+                          )}
+                        </div>
+                      </div>
+                    );
+                  })}
+                </div>
+              )}
+            </div>
+
+            {/* ── Property Gallery (Permanent Local & DB Storage) ── */}
+            <div className="bg-white rounded-2xl p-6 border border-[#e0e3e5] shadow-xs">
+              <div className="flex justify-between items-center mb-4">
+                <div>
+                  <h3 className="font-bold text-base text-[#191c1e]">Property Gallery</h3>
+                  <p className="text-xs text-[#76777d]">Showcase photos for {currentHotel?.name || 'hotel'}</p>
                 </div>
                 <button
                   onClick={() => setShowUploadModal(true)}
@@ -570,7 +776,7 @@ export default function OwnerDashboard() {
                     <div className="absolute inset-0 bg-black/50 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center gap-2">
                       <button
                         onClick={() => handleDeleteImage(img.id)}
-                        className="p-2 bg-red-600 text-white rounded-full hover:bg-red-700 transition-colors shadow-sm"
+                        className="p-2 bg-red-600 text-white rounded-full hover:bg-red-700 transition-colors shadow-sm cursor-pointer"
                         title="Delete photo"
                       >
                         <span className="material-symbols-outlined text-base">delete</span>
@@ -597,7 +803,7 @@ export default function OwnerDashboard() {
 
             {/* Profile Editor */}
             <div className="bg-white rounded-2xl p-6 border border-[#e0e3e5] shadow-xs">
-              <h3 className="font-semibold text-base text-[#191c1e] mb-1">Profile Details</h3>
+              <h3 className="font-bold text-base text-[#191c1e] mb-1">Profile Details</h3>
               <p className="text-xs text-[#76777d] mb-4">Manage property information & pricing.</p>
 
               {profileSaved && (
@@ -614,7 +820,7 @@ export default function OwnerDashboard() {
                     type="text"
                     value={propertyName}
                     onChange={(e) => setPropertyName(e.target.value)}
-                    className="w-full p-3 rounded-xl border border-[#c6c6cd] focus:border-[#131b2e] focus:ring-2 focus:ring-[#131b2e]/10 outline-none text-xs bg-white font-medium text-[#191c1e]"
+                    className="w-full p-3 rounded-xl border border-[#c6c6cd] focus:border-[#131b2e] outline-none text-xs bg-white font-medium text-[#191c1e]"
                   />
                 </div>
 
@@ -624,7 +830,7 @@ export default function OwnerDashboard() {
                     type="email"
                     value={contactEmail}
                     onChange={(e) => setContactEmail(e.target.value)}
-                    className="w-full p-3 rounded-xl border border-[#c6c6cd] focus:border-[#131b2e] focus:ring-2 focus:ring-[#131b2e]/10 outline-none text-xs bg-white font-medium text-[#191c1e]"
+                    className="w-full p-3 rounded-xl border border-[#c6c6cd] focus:border-[#131b2e] outline-none text-xs bg-white font-medium text-[#191c1e]"
                   />
                 </div>
 
@@ -636,14 +842,14 @@ export default function OwnerDashboard() {
                       type="number"
                       value={basePrice}
                       onChange={(e) => setBasePrice(e.target.value)}
-                      className="w-full p-3 pl-8 rounded-xl border border-[#c6c6cd] focus:border-[#131b2e] focus:ring-2 focus:ring-[#131b2e]/10 outline-none text-xs bg-white font-medium text-[#191c1e]"
+                      className="w-full p-3 pl-8 rounded-xl border border-[#c6c6cd] focus:border-[#131b2e] outline-none text-xs bg-white font-medium text-[#191c1e]"
                     />
                   </div>
                 </div>
 
                 <button
                   type="submit"
-                  className="w-full bg-[#131b2e] text-white py-3 rounded-xl text-xs font-semibold hover:bg-[#1e2d47] transition-colors shadow-xs cursor-pointer mt-2"
+                  className="w-full bg-[#131b2e] text-white py-3 rounded-xl text-xs font-bold hover:bg-[#1e2d47] transition-colors shadow-xs cursor-pointer mt-2"
                 >
                   Save Changes
                 </button>
@@ -653,7 +859,7 @@ export default function OwnerDashboard() {
             {/* Customer Reviews List */}
             <div className="bg-white rounded-2xl border border-[#e0e3e5] shadow-xs flex flex-col">
               <div className="p-5 border-b border-[#e0e3e5]">
-                <h3 className="font-semibold text-base text-[#191c1e]">Recent Reviews</h3>
+                <h3 className="font-bold text-base text-[#191c1e]">Recent Reviews</h3>
                 <p className="text-xs text-[#76777d]">Customer feedback & ratings</p>
               </div>
 
@@ -664,177 +870,222 @@ export default function OwnerDashboard() {
                 {reviews.map((rev) => {
                   const authorName = rev.profiles?.full_name || 'Guest';
                   return (
-                  <div key={rev.id} className="p-4 hover:bg-[#f7f9fb] transition-colors space-y-2">
-                    <div className="flex justify-between items-center">
-                      <span className="font-semibold text-xs text-[#191c1e]">{authorName}</span>
-                      <div className="flex text-[#fea619]">
-                        {Array.from({ length: 5 }).map((_, i) => (
-                          <span
-                            key={i}
-                            className={`material-symbols-outlined text-sm ${i < rev.rating ? 'fill' : ''}`}
-                          >
-                            star
-                          </span>
-                        ))}
+                    <div key={rev.id} className="p-4 hover:bg-[#f7f9fb] transition-colors space-y-2">
+                      <div className="flex justify-between items-center">
+                        <span className="font-bold text-xs text-[#191c1e]">{authorName}</span>
+                        <div className="flex text-[#fea619]">
+                          {Array.from({ length: 5 }).map((_, i) => (
+                            <span
+                              key={i}
+                              className={`material-symbols-outlined text-sm ${i < rev.rating ? 'fill' : ''}`}
+                            >
+                              star
+                            </span>
+                          ))}
+                        </div>
                       </div>
+
+                      <p className="text-xs text-[#45464d] leading-relaxed italic">{rev.comment}</p>
+
+                      {rev.reply && (
+                        <div className="bg-[#f2f4f6] p-2.5 rounded-xl border border-[#e0e3e5] text-xs text-[#191c1e]">
+                          <span className="font-bold text-[11px] text-[#855300] block mb-0.5">Your Reply:</span>
+                          {rev.reply}
+                        </div>
+                      )}
+
+                      {!rev.reply && (
+                        <button
+                          onClick={() => setSelectedReview(rev)}
+                          className="text-xs font-semibold text-[#855300] border border-[#ffddb8] bg-[#fffbf2] hover:bg-[#ffddb8]/40 px-3 py-1 rounded-full flex items-center gap-1 transition-colors cursor-pointer"
+                        >
+                          <span className="material-symbols-outlined text-sm">reply</span>
+                          Reply
+                        </button>
+                      )}
                     </div>
-
-                    <p className="text-xs text-[#45464d] leading-relaxed italic">{rev.comment}</p>
-
-                    {rev.reply && (
-                      <div className="bg-[#f2f4f6] p-2.5 rounded-xl border border-[#e0e3e5] text-xs text-[#191c1e]">
-                        <span className="font-bold text-[11px] text-[#855300] block mb-0.5">Your Reply:</span>
-                        {rev.reply}
-                      </div>
-                    )}
-
-                    {!rev.reply && (
-                      <button
-                        onClick={() => setSelectedReview(rev)}
-                        className="text-xs font-semibold text-[#855300] border border-[#ffddb8] bg-[#fffbf2] hover:bg-[#ffddb8]/40 px-3 py-1 rounded-full flex items-center gap-1 transition-colors cursor-pointer"
-                      >
-                        <span className="material-symbols-outlined text-sm">reply</span>
-                        Reply
-                      </button>
-                    )}
-                  </div>
                   );
                 })}
               </div>
             </div>
 
           </div>
-
         </div>
 
-      </div>
-
-      {/* ── MODAL 1: Add New Room ── */}
-      {showAddRoomModal && (
-        <div className="fixed inset-0 bg-black/50 z-50 flex items-center justify-center p-4">
-          <div className="bg-white rounded-2xl max-w-md w-full p-6 space-y-4 shadow-xl">
-            <div className="flex justify-between items-center border-b border-[#e0e3e5] pb-3">
-              <h3 className="font-semibold text-base text-[#191c1e]">Add New Room</h3>
-              <button onClick={() => setShowAddRoomModal(false)} className="text-[#76777d] hover:text-[#191c1e]">
-                <span className="material-symbols-outlined">close</span>
-              </button>
-            </div>
-            <form onSubmit={handleAddRoomSubmit} className="space-y-3">
-              <div>
-                <label className="block text-xs font-semibold text-[#45464d] uppercase mb-1">Room Number / Name</label>
-                <input
-                  type="text"
-                  placeholder="e.g. Room 502"
-                  value={newRoomNum}
-                  onChange={(e) => setNewRoomNum(e.target.value)}
-                  required
-                  className="w-full p-3 rounded-xl border border-[#c6c6cd] text-xs focus:border-[#131b2e] outline-none"
-                />
-              </div>
-              <div>
-                <label className="block text-xs font-semibold text-[#45464d] uppercase mb-1">Category / Type</label>
-                <select
-                  value={newRoomType}
-                  onChange={(e) => setNewRoomType(e.target.value)}
-                  className="w-full p-3 rounded-xl border border-[#c6c6cd] text-xs focus:border-[#131b2e] outline-none bg-white"
-                >
-                  <option value="Standard King">Standard King</option>
-                  <option value="Deluxe Suite">Deluxe Suite</option>
-                  <option value="Ocean View Double">Ocean View Double</option>
-                  <option value="Penthouse Suite">Penthouse Suite</option>
-                </select>
-              </div>
-              <div>
-                <label className="block text-xs font-semibold text-[#45464d] uppercase mb-1">Price per Night ($)</label>
-                <input
-                  type="number"
-                  value={newRoomRate}
-                  onChange={(e) => setNewRoomRate(e.target.value)}
-                  required
-                  className="w-full p-3 rounded-xl border border-[#c6c6cd] text-xs focus:border-[#131b2e] outline-none"
-                />
-              </div>
-              <div className="flex gap-2 pt-2">
-                <button
-                  type="button"
-                  onClick={() => setShowAddRoomModal(false)}
-                  className="flex-1 py-2.5 text-xs font-semibold border border-[#c6c6cd] rounded-xl hover:bg-[#f2f4f6]"
-                >
-                  Cancel
-                </button>
-                <button
-                  type="submit"
-                  disabled={addingRoom}
-                  className="flex-1 py-2.5 text-xs font-semibold bg-[#fea619] text-[#2a1700] rounded-xl hover:bg-[#e59410] disabled:opacity-50"
-                >
-                  {addingRoom ? 'Adding…' : 'Add Room'}
+        {/* ── Modal 1: Add Room ── */}
+        {showAddRoomModal && (
+          <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/50 backdrop-blur-sm">
+            <div className="bg-white rounded-2xl shadow-2xl w-full max-w-md p-6 animate-fadeIn">
+              <div className="flex items-center justify-between mb-4 border-b border-[#e0e3e5] pb-3">
+                <h2 className="text-base font-bold text-[#191c1e]">Add Room to Property</h2>
+                <button onClick={() => setShowAddRoomModal(false)} className="text-[#76777d] hover:text-[#191c1e]">
+                  <span className="material-symbols-outlined">close</span>
                 </button>
               </div>
-            </form>
-          </div>
-        </div>
-      )}
 
-      {/* ── MODAL 2: Request Free Cleaning Service ── */}
-      {showCleaningModal && (
-        <div className="fixed inset-0 bg-black/50 z-50 flex items-center justify-center p-4">
-          <div className="bg-white rounded-2xl max-w-md w-full p-6 space-y-4 shadow-xl">
-            <div className="flex justify-between items-center border-b border-[#e0e3e5] pb-3">
-              <div className="flex items-center gap-2">
-                <span className="material-symbols-outlined text-[#fea619]">cleaning_services</span>
-                <h3 className="font-semibold text-base text-[#191c1e]">Request Free Cleaning</h3>
-              </div>
-              <button onClick={() => setShowCleaningModal(false)} className="text-[#76777d] hover:text-[#191c1e]">
-                <span className="material-symbols-outlined">close</span>
-              </button>
-            </div>
+              <form onSubmit={handleAddRoomSubmit} className="space-y-3.5">
+                {hotels.length > 1 && (
+                  <div>
+                    <label className="block text-xs font-semibold text-[#45464d] uppercase mb-1">Target Property</label>
+                    <select
+                      value={newRoomHotelId}
+                      onChange={(e) => setNewRoomHotelId(e.target.value)}
+                      className="w-full p-2.5 border border-[#c6c6cd] rounded-xl text-xs outline-none bg-white font-medium focus:border-[#131b2e]"
+                    >
+                      {hotels.map((h) => (
+                        <option key={h.id} value={h.id}>{h.name}</option>
+                      ))}
+                    </select>
+                  </div>
+                )}
 
-            {cleaningSuccess ? (
-              <div className="py-8 text-center space-y-2">
-                <span className="material-symbols-outlined text-4xl text-emerald-500">task_alt</span>
-                <h4 className="font-semibold text-base text-[#191c1e]">Cleaning Request Sent!</h4>
-                <p className="text-xs text-[#76777d]">Cleaning team has been notified and dispatched.</p>
-              </div>
-            ) : (
-              <form onSubmit={handleCleaningSubmit} className="space-y-3">
                 <div>
-                  <label className="block text-xs font-semibold text-[#45464d] uppercase mb-1">Target Room</label>
+                  <label className="block text-xs font-semibold text-[#45464d] uppercase mb-1">Room Number / Identifier *</label>
+                  <input
+                    type="text"
+                    placeholder="e.g. 101, 204"
+                    value={newRoomNum}
+                    onChange={(e) => setNewRoomNum(e.target.value)}
+                    required
+                    className="w-full p-2.5 border border-[#c6c6cd] rounded-xl text-xs outline-none focus:border-[#131b2e]"
+                  />
+                </div>
+
+                <div className="grid grid-cols-2 gap-3">
+                  <div>
+                    <label className="block text-xs font-semibold text-[#45464d] uppercase mb-1">Room Type</label>
+                    <select
+                      value={newRoomType}
+                      onChange={(e) => setNewRoomType(e.target.value)}
+                      className="w-full p-2.5 border border-[#c6c6cd] rounded-xl text-xs outline-none bg-white font-medium focus:border-[#131b2e]"
+                    >
+                      <option value="Deluxe Suite">Deluxe Suite</option>
+                      <option value="Standard King">Standard King</option>
+                      <option value="Executive Suite">Executive Suite</option>
+                      <option value="Ocean View Villa">Ocean View Villa</option>
+                      <option value="Presidential Penthouse">Presidential Penthouse</option>
+                    </select>
+                  </div>
+                  <div>
+                    <label className="block text-xs font-semibold text-[#45464d] uppercase mb-1">Nightly Rate ($)</label>
+                    <input
+                      type="number"
+                      value={newRoomRate}
+                      onChange={(e) => setNewRoomRate(e.target.value)}
+                      required
+                      className="w-full p-2.5 border border-[#c6c6cd] rounded-xl text-xs outline-none focus:border-[#131b2e]"
+                    />
+                  </div>
+                </div>
+
+                <div className="flex gap-2.5 pt-3">
+                  <button
+                    type="button"
+                    onClick={() => setShowAddRoomModal(false)}
+                    className="flex-1 py-2.5 text-xs font-semibold border border-[#c6c6cd] rounded-xl hover:bg-[#f2f4f6]"
+                  >
+                    Cancel
+                  </button>
+                  <button
+                    type="submit"
+                    disabled={addingRoom}
+                    className="flex-1 py-2.5 text-xs font-bold bg-[#131b2e] text-white rounded-xl hover:bg-[#1e2d47] disabled:opacity-50"
+                  >
+                    {addingRoom ? 'Adding…' : 'Add Room'}
+                  </button>
+                </div>
+              </form>
+            </div>
+          </div>
+        )}
+
+        {/* ── Modal 2: Upload Photo ── */}
+        {showUploadModal && (
+          <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/50 backdrop-blur-sm">
+            <div className="bg-white rounded-2xl shadow-2xl w-full max-w-md p-6 animate-fadeIn">
+              <div className="flex items-center justify-between mb-4 border-b border-[#e0e3e5] pb-3">
+                <h2 className="text-base font-bold text-[#191c1e]">Add Photo to Gallery</h2>
+                <button onClick={() => setShowUploadModal(false)} className="text-[#76777d] hover:text-[#191c1e]">
+                  <span className="material-symbols-outlined">close</span>
+                </button>
+              </div>
+
+              <form onSubmit={handleAddImage} className="space-y-4">
+                <div>
+                  <label className="block text-xs font-semibold text-[#45464d] uppercase mb-1">Image URL (HTTPS link) *</label>
+                  <input
+                    type="url"
+                    placeholder="https://images.unsplash.com/..."
+                    value={newImgUrl}
+                    onChange={(e) => setNewImgUrl(e.target.value)}
+                    required
+                    className="w-full p-2.5 border border-[#c6c6cd] rounded-xl text-xs outline-none focus:border-[#131b2e]"
+                  />
+                  <p className="text-[11px] text-[#76777d] mt-1">
+                    Paste a direct high-resolution image URL. It will stay permanently saved for this property.
+                  </p>
+                </div>
+
+                <div className="flex gap-2.5 pt-2">
+                  <button
+                    type="button"
+                    onClick={() => setShowUploadModal(false)}
+                    className="flex-1 py-2.5 text-xs font-semibold border border-[#c6c6cd] rounded-xl hover:bg-[#f2f4f6]"
+                  >
+                    Cancel
+                  </button>
+                  <button
+                    type="submit"
+                    className="flex-1 py-2.5 text-xs font-bold bg-[#131b2e] text-white rounded-xl hover:bg-[#1e2d47]"
+                  >
+                    Save Photo
+                  </button>
+                </div>
+              </form>
+            </div>
+          </div>
+        )}
+
+        {/* ── Modal 3: Request Cleaning ── */}
+        {showCleaningModal && (
+          <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/50 backdrop-blur-sm">
+            <div className="bg-white rounded-2xl shadow-2xl w-full max-w-md p-6 animate-fadeIn">
+              <div className="flex items-center justify-between mb-4 border-b border-[#e0e3e5] pb-3">
+                <h2 className="text-base font-bold text-[#191c1e]">Request Free Cleaning Service</h2>
+                <button onClick={() => setShowCleaningModal(false)} className="text-[#76777d] hover:text-[#191c1e]">
+                  <span className="material-symbols-outlined">close</span>
+                </button>
+              </div>
+
+              <form onSubmit={handleCleaningSubmit} className="space-y-3.5">
+                <div>
+                  <label className="block text-xs font-semibold text-[#45464d] uppercase mb-1">Select Room</label>
                   <select
                     value={cleaningRoom}
                     onChange={(e) => setCleaningRoom(e.target.value)}
-                    className="w-full p-3 rounded-xl border border-[#c6c6cd] text-xs outline-none bg-white"
+                    className="w-full p-2.5 border border-[#c6c6cd] rounded-xl text-xs outline-none bg-white font-medium focus:border-[#131b2e]"
                   >
-                    <option value="Room 402">Room 402</option>
-                    <option value="Room 105">Room 105</option>
-                    <option value="Room 213">Room 213</option>
-                    <option value="Room 318">Room 318</option>
+                    <option value="">All Rooms / Common Areas</option>
+                    {displayRooms.map((r) => (
+                      <option key={r.id} value={r.id}>Room {r.room_number || r.id.slice(0, 4)} ({r.type})</option>
+                    ))}
                   </select>
                 </div>
+
                 <div>
-                  <label className="block text-xs font-semibold text-[#45464d] uppercase mb-1">Cleaning Type</label>
+                  <label className="block text-xs font-semibold text-[#45464d] uppercase mb-1">Service Type</label>
                   <select
                     value={cleaningType}
                     onChange={(e) => setCleaningType(e.target.value)}
-                    className="w-full p-3 rounded-xl border border-[#c6c6cd] text-xs outline-none bg-white"
+                    className="w-full p-2.5 border border-[#c6c6cd] rounded-xl text-xs outline-none bg-white font-medium focus:border-[#131b2e]"
                   >
-                    <option value="Checkout">Checkout Clean (Full Turnaround)</option>
-                    <option value="Standard">Standard Daily Refresh</option>
-                    <option value="Deep Clean">Deep Sanitize & Linen Change</option>
+                    <option value="Checkout">Checkout Deep Clean</option>
+                    <option value="Daily">Daily Refresh & Towels</option>
+                    <option value="Sanitization">Full Sanitization & Linen</option>
                   </select>
                 </div>
-                <div>
-                  <label className="block text-xs font-semibold text-[#45464d] uppercase mb-1">Urgency Level</label>
-                  <select
-                    value={cleaningUrgency}
-                    onChange={(e) => setCleaningUrgency(e.target.value)}
-                    className="w-full p-3 rounded-xl border border-[#c6c6cd] text-xs outline-none bg-white"
-                  >
-                    <option value="urgent">🔴 Urgent (Immediate Dispatch)</option>
-                    <option value="scheduled">🟡 Scheduled (Next 2 Hours)</option>
-                    <option value="normal">🟢 Normal Priority</option>
-                  </select>
-                </div>
-                <div className="flex gap-2 pt-2">
+
+                <div className="flex gap-2.5 pt-3">
                   <button
                     type="button"
                     onClick={() => setShowCleaningModal(false)}
@@ -844,104 +1095,63 @@ export default function OwnerDashboard() {
                   </button>
                   <button
                     type="submit"
-                    className="flex-1 py-2.5 text-xs font-semibold bg-[#131b2e] text-white rounded-xl hover:bg-[#1e2d47]"
+                    className="flex-1 py-2.5 text-xs font-bold bg-[#131b2e] text-white rounded-xl hover:bg-[#1e2d47]"
                   >
-                    Confirm Request
+                    Dispatch Cleaner
                   </button>
                 </div>
               </form>
-            )}
-          </div>
-        </div>
-      )}
-
-      {/* ── MODAL 3: Upload Image ── */}
-      {showUploadModal && (
-        <div className="fixed inset-0 bg-black/50 z-50 flex items-center justify-center p-4">
-          <div className="bg-white rounded-2xl max-w-md w-full p-6 space-y-4 shadow-xl">
-            <div className="flex justify-between items-center border-b border-[#e0e3e5] pb-3">
-              <h3 className="font-semibold text-base text-[#191c1e]">Add Photo to Gallery</h3>
-              <button onClick={() => setShowUploadModal(false)} className="text-[#76777d] hover:text-[#191c1e]">
-                <span className="material-symbols-outlined">close</span>
-              </button>
             </div>
-            <form onSubmit={handleAddImage} className="space-y-3">
-              <div>
-                <label className="block text-xs font-semibold text-[#45464d] uppercase mb-1">Image URL</label>
-                <input
-                  type="url"
-                  placeholder="https://images.unsplash.com/photo-..."
-                  value={newImgUrl}
-                  onChange={(e) => setNewImgUrl(e.target.value)}
-                  required
-                  className="w-full p-3 rounded-xl border border-[#c6c6cd] text-xs outline-none focus:border-[#131b2e]"
-                />
-              </div>
-              <div className="flex gap-2 pt-2">
-                <button
-                  type="button"
-                  onClick={() => setShowUploadModal(false)}
-                  className="flex-1 py-2.5 text-xs font-semibold border border-[#c6c6cd] rounded-xl hover:bg-[#f2f4f6]"
-                >
-                  Cancel
-                </button>
-                <button
-                  type="submit"
-                  className="flex-1 py-2.5 text-xs font-semibold bg-[#fea619] text-[#2a1700] rounded-xl hover:bg-[#e59410]"
-                >
-                  Add Image
+          </div>
+        )}
+
+        {/* ── Modal 4: Reply Review ── */}
+        {selectedReview && (
+          <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/50 backdrop-blur-sm">
+            <div className="bg-white rounded-2xl shadow-2xl w-full max-w-md p-6 animate-fadeIn">
+              <div className="flex items-center justify-between mb-4 border-b border-[#e0e3e5] pb-3">
+                <h2 className="text-base font-bold text-[#191c1e]">Reply to Guest Review</h2>
+                <button onClick={() => setSelectedReview(null)} className="text-[#76777d] hover:text-[#191c1e]">
+                  <span className="material-symbols-outlined">close</span>
                 </button>
               </div>
-            </form>
-          </div>
-        </div>
-      )}
 
-      {/* ── MODAL 4: Reply to Review ── */}
-      {selectedReview && (
-        <div className="fixed inset-0 bg-black/50 z-50 flex items-center justify-center p-4">
-          <div className="bg-white rounded-2xl max-w-md w-full p-6 space-y-4 shadow-xl">
-            <div className="flex justify-between items-center border-b border-[#e0e3e5] pb-3">
-              <h3 className="font-semibold text-base text-[#191c1e]">Reply to {selectedReview.profiles?.full_name || 'Guest'}</h3>
-              <button onClick={() => setSelectedReview(null)} className="text-[#76777d] hover:text-[#191c1e]">
-                <span className="material-symbols-outlined">close</span>
-              </button>
-            </div>
-            <p className="text-xs text-[#76777d] italic bg-[#f7f9fb] p-3 rounded-xl border border-[#e0e3e5]">
-              {selectedReview.comment || '(no comment)'}
-            </p>
-            <form onSubmit={handleSendReply} className="space-y-3">
-              <div>
-                <label className="block text-xs font-semibold text-[#45464d] uppercase mb-1">Your Response</label>
+              <div className="mb-3 p-3 bg-[#f7f9fb] rounded-xl border border-[#e0e3e5] text-xs">
+                <p className="font-bold text-[#191c1e] mb-1">{selectedReview.profiles?.full_name || 'Guest'}:</p>
+                <p className="text-[#45464d] italic">"{selectedReview.comment}"</p>
+              </div>
+
+              <form onSubmit={handleSendReply} className="space-y-3.5">
                 <textarea
-                  rows={3}
-                  placeholder="Thank you for staying with us..."
+                  rows={4}
+                  placeholder="Write your response to the guest…"
                   value={replyText}
                   onChange={(e) => setReplyText(e.target.value)}
                   required
-                  className="w-full p-3 rounded-xl border border-[#c6c6cd] text-xs outline-none focus:border-[#131b2e]"
+                  className="w-full p-3 border border-[#c6c6cd] rounded-xl text-xs outline-none focus:border-[#131b2e]"
                 />
-              </div>
-              <div className="flex gap-2 pt-2">
-                <button
-                  type="button"
-                  onClick={() => setSelectedReview(null)}
-                  className="flex-1 py-2.5 text-xs font-semibold border border-[#c6c6cd] rounded-xl hover:bg-[#f2f4f6]"
-                >
-                  Cancel
-                </button>
-                <button
-                  type="submit"
-                  className="flex-1 py-2.5 text-xs font-semibold bg-[#131b2e] text-white rounded-xl hover:bg-[#1e2d47]"
-                >
-                  Post Reply
-                </button>
-              </div>
-            </form>
-          </div>
-        </div>
-      )}
 
+                <div className="flex gap-2.5">
+                  <button
+                    type="button"
+                    onClick={() => setSelectedReview(null)}
+                    className="flex-1 py-2.5 text-xs font-semibold border border-[#c6c6cd] rounded-xl hover:bg-[#f2f4f6]"
+                  >
+                    Cancel
+                  </button>
+                  <button
+                    type="submit"
+                    className="flex-1 py-2.5 text-xs font-bold bg-[#131b2e] text-white rounded-xl hover:bg-[#1e2d47]"
+                  >
+                    Send Reply
+                  </button>
+                </div>
+              </form>
+            </div>
+          </div>
+        )}
+
+      </div>
     </OwnerLayout>
   );
 }

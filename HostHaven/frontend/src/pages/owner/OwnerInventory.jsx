@@ -41,6 +41,29 @@ export default function OwnerInventory() {
     fetchRooms();
   }, [user]);
 
+  // Real-time sync on rooms
+  useEffect(() => {
+    if (!user) return;
+    const channel = supabase
+      .channel(`owner-rooms-sync-${user.id}`)
+      .on('postgres_changes', { event: '*', schema: 'public', table: 'rooms' }, () => {
+        // Re-fetch rooms
+        async function refresh() {
+          const { data: hotels } = await supabase.from('hotels').select('id').eq('owner_id', user.id);
+          if (hotels && hotels.length > 0) {
+            const { data } = await supabase.from('rooms').select('*, hotels:hotel_id(name)').in('hotel_id', hotels.map(h => h.id)).order('room_number');
+            if (data) setRooms(data);
+          }
+        }
+        refresh();
+      })
+      .subscribe();
+
+    return () => {
+      supabase.removeChannel(channel);
+    };
+  }, [user]);
+
   const toggleRoomStatus = async (room) => {
     const STATUS_CYCLE = { available: 'occupied', occupied: 'cleaning', cleaning: 'maintenance', maintenance: 'available' };
     const nextStatus = STATUS_CYCLE[room.status] || 'available';
