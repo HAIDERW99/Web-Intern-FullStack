@@ -27,10 +27,10 @@ export default function ForgotPasswordPage() {
   return (
     <div className="min-h-screen flex items-center justify-center bg-white p-6">
       <div className="w-full max-w-md">
-        <div className="flex items-center gap-2 mb-8">
+        <Link to="/" className="flex items-center gap-2 mb-8 inline-flex" title="Return to Home">
           <span className="material-symbols-outlined text-[#fea619] text-2xl">hotel_class</span>
           <span className="font-bold text-xl text-[#131b2e]">HostHaven</span>
-        </div>
+        </Link>
 
         {sent ? (
           <div className="text-center">

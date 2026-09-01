@@ -109,40 +109,47 @@ export default function LoginPage() {
 
   return (
     <div className="min-h-screen flex">
-      {/* ─── Left Panel — Hero ─────────────────────────────────── */}
-      <div className="hidden lg:flex lg:w-1/2 relative overflow-hidden">
+      {/* ─── Left Panel — Hero (Clickable to Home/Landing Page) ─── */}
+      <Link
+        to="/"
+        className="hidden lg:flex lg:w-1/2 relative overflow-hidden group cursor-pointer"
+        title="Return to HostHaven Home / Landing Page"
+      >
         <img
           src={hotelLobby}
           alt="Luxury hotel lobby"
-          className="absolute inset-0 w-full h-full object-cover"
+          className="absolute inset-0 w-full h-full object-cover group-hover:scale-105 transition-transform duration-700"
         />
         {/* Dark overlay */}
-        <div className="absolute inset-0 bg-gradient-to-t from-[#0a0f1e]/80 via-[#0a0f1e]/20 to-transparent" />
+        <div className="absolute inset-0 bg-gradient-to-t from-[#0a0f1e]/85 via-[#0a0f1e]/25 to-transparent group-hover:from-[#0a0f1e]/75 transition-colors" />
 
         {/* Brand badge */}
         <div className="relative z-10 flex flex-col justify-end p-10 pb-12">
           <div className="flex items-center gap-2 mb-4">
-            <span className="material-symbols-outlined text-[#fea619] text-3xl select-none">
+            <span className="material-symbols-outlined text-[#fea619] text-3xl select-none group-hover:rotate-12 transition-transform">
               hotel_class
             </span>
             <span className="text-white font-bold text-2xl tracking-tight">HostHaven</span>
           </div>
-          <p className="text-white/80 text-base max-w-xs leading-relaxed">
+          <p className="text-white/80 text-base max-w-xs leading-relaxed mb-4">
             Elevate your hospitality experience. Seamlessly manage bookings, staff, and
             properties from one central hub.
           </p>
+          <span className="inline-flex items-center gap-1.5 text-xs text-amber-300 font-semibold group-hover:underline">
+            ← Explore Properties & Stays
+          </span>
         </div>
-      </div>
+      </Link>
 
       {/* ─── Right Panel — Form ────────────────────────────────── */}
       <div className="flex-1 flex items-center justify-center p-6 sm:p-10 bg-white">
         <div className="w-full max-w-md">
 
           {/* Mobile logo */}
-          <div className="flex items-center gap-2 mb-8 lg:hidden">
+          <Link to="/" className="flex items-center gap-2 mb-8 lg:hidden" title="Return to Home">
             <span className="material-symbols-outlined text-[#fea619] text-2xl">hotel_class</span>
             <span className="font-bold text-xl text-[#131b2e]">HostHaven</span>
-          </div>
+          </Link>
 
           <h1 className="text-2xl sm:text-3xl font-semibold text-[#191c1e] mb-1">
             Welcome Back
