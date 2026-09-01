@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { supabase } from '../../lib/supabase';
+
 // Replace this URL with your own hotel lobby image placed at src/assets/hotel-lobby.jpg
 const hotelLobby = 'https://images.unsplash.com/photo-1582719478250-c89cae4dc85b?w=1200&q=80';
 
@@ -63,13 +64,34 @@ export default function LoginPage() {
         });
       }
 
-      // Redirect directly based on user's actual role
-      if (userRole === 'admin') {
-        navigate('/admin/dashboard');
-      } else if (userRole === 'hotel_owner') {
-        navigate('/owner/dashboard');
-      } else {
+      // ── Role Verification & Mismatch Handling ──────────────────────
+      if (tab === 'guest') {
+        if (userRole === 'hotel_owner') {
+          // Immediately sign out to prevent unauthorized guest/owner session mix
+          await supabase.auth.signOut();
+          setError('This account is registered as a Hotel Owner. Please select the "Owner Login" tab to sign in.');
+          return;
+        }
+        if (userRole === 'admin') {
+          await supabase.auth.signOut();
+          setError('This is an Administrator account. Please use the Admin Portal in the footer to sign in.');
+          return;
+        }
+        // Valid Guest
         navigate('/');
+      } else if (tab === 'owner') {
+        if (userRole === 'customer') {
+          // Immediately sign out to prevent unauthorized owner portal access
+          await supabase.auth.signOut();
+          setError('This account is registered as a Guest. Please select the "Guest Login" tab to sign in.');
+          return;
+        }
+        if (userRole === 'admin') {
+          navigate('/admin/dashboard');
+          return;
+        }
+        // Valid Hotel Owner
+        navigate('/owner/dashboard');
       }
     } catch (err) {
       setError(err.message || 'An error occurred while signing in.');
@@ -129,17 +151,17 @@ export default function LoginPage() {
             Please enter your details to sign in.
           </p>
 
-          {/* ── Tab toggle ── */}
+          {/* ── Tab toggle: Guest vs Owner (Admin removed) ── */}
           <div className="flex bg-[#eceef0] rounded-lg p-1 mb-6">
             {[
               { key: 'guest', label: 'Guest Login' },
-              { key: 'owner', label: 'Owner / Admin' },
+              { key: 'owner', label: 'Owner Login' },
             ].map(({ key, label }) => (
               <button
                 key={key}
                 type="button"
                 onClick={() => { setTab(key); setError(''); }}
-                className={`flex-1 py-2 text-sm rounded-md transition-all duration-150 ${
+                className={`flex-1 py-2.5 text-sm font-semibold rounded-md transition-all duration-150 ${
                   tab === key ? 'tab-active' : 'tab-inactive'
                 }`}
               >
@@ -150,8 +172,11 @@ export default function LoginPage() {
 
           {/* ── Error banner ── */}
           {error && (
-            <div className="mb-4 px-4 py-3 bg-red-50 border border-red-200 rounded-lg text-sm text-red-700">
-              {error}
+            <div className="mb-4 px-4 py-3 bg-red-50 border border-red-200 rounded-lg text-sm text-red-700 flex items-start gap-2 animate-fadeIn">
+              <svg className="w-4 h-4 flex-shrink-0 mt-0.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
+              </svg>
+              <span>{error}</span>
             </div>
           )}
 
@@ -232,7 +257,7 @@ export default function LoginPage() {
                   Signing in…
                 </span>
               ) : (
-                'Sign In'
+                `Sign In as ${tab === 'guest' ? 'Guest' : 'Hotel Owner'}`
               )}
             </button>
           </form>

@@ -4,6 +4,7 @@ import ProtectedRoute from './components/ProtectedRoute';
 
 // ── Auth ──────────────────────────────────────────────────────────────────
 import LoginPage           from './pages/auth/LoginPage';
+import AdminLoginPage      from './pages/auth/AdminLoginPage';
 import RegisterPage        from './pages/auth/RegisterPage';
 import ForgotPasswordPage  from './pages/auth/ForgotPasswordPage';
 import AuthCallbackPage    from './pages/auth/AuthCallbackPage';
@@ -41,6 +42,7 @@ export default function App() {
 
           {/* ── Auth ─────────────────────────────────────────── */}
           <Route path="/login"           element={<LoginPage />} />
+          <Route path="/admin/login"     element={<AdminLoginPage />} />
           <Route path="/register"        element={<RegisterPage />} />
           <Route path="/forgot-password" element={<ForgotPasswordPage />} />
           <Route path="/auth/callback"   element={<AuthCallbackPage />} />
