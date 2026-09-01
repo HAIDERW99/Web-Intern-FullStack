@@ -10,9 +10,8 @@ export default function Navbar() {
 
   const navLinks = [
     { to: '/', label: 'Explore' },
-    { to: '/reservations', label: 'Reservations' },
     { to: '/properties', label: 'Properties' },
-    { to: '/earnings', label: 'Earnings' },
+    { to: '/reservations', label: 'Reservations' },
   ];
 
   const handleSignOut = async () => {

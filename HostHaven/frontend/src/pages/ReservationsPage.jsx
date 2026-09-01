@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react';
 import Navbar from '../components/Navbar';
+import Footer from '../components/Footer';
 import { supabase } from '../lib/supabase';
 import { useAuth } from '../context/AuthContext';
 import { Link } from 'react-router-dom';
@@ -111,10 +112,10 @@ export default function ReservationsPage() {
   const completed  = reservations.filter((r) => r.status === 'completed').length;
 
   return (
-    <div className="min-h-screen bg-[#f7f9fb]">
+    <div className="min-h-screen flex flex-col bg-[#f7f9fb]">
       <Navbar />
 
-      <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-10 py-8">
+      <div className="flex-1 max-w-5xl mx-auto px-4 sm:px-6 lg:px-10 py-8 w-full">
         {/* ── Header ── */}
         <div className="mb-6">
           <h1 className="text-2xl font-bold text-[#191c1e]">My Reservations</h1>
@@ -278,6 +279,8 @@ export default function ReservationsPage() {
           </div>
         )}
       </div>
+
+      <Footer />
     </div>
   );
 }

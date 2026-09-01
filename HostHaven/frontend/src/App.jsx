@@ -49,11 +49,12 @@ export default function App() {
 
           {/* ── Public ───────────────────────────────────────── */}
           <Route path="/"              element={<ExplorePage />} />
+          <Route path="/properties"    element={<PropertiesPage />} />
           <Route path="/hotels/:id"    element={<HotelDetailPage />} />
 
-          {/* ── Guest (customer) ─────────────────────────────── */}
+          {/* ── Guest (customer / user) ───────────────────────── */}
           <Route path="/reservations" element={
-            <ProtectedRoute allowedRoles={['customer']}>
+            <ProtectedRoute allowedRoles={['customer', 'hotel_owner', 'admin']}>
               <ReservationsPage />
             </ProtectedRoute>
           } />
@@ -72,11 +73,6 @@ export default function App() {
           <Route path="/owner/analytics" element={<ProtectedRoute allowedRoles={['hotel_owner', 'admin']}><OwnerAnalytics /></ProtectedRoute>} />
           <Route path="/owner/settings"  element={<ProtectedRoute allowedRoles={['hotel_owner', 'admin']}><OwnerSettings /></ProtectedRoute>} />
           <Route path="/owner/support"   element={<ProtectedRoute allowedRoles={['hotel_owner', 'admin']}><OwnerSettings /></ProtectedRoute>} />
-          <Route path="/properties" element={
-            <ProtectedRoute allowedRoles={['hotel_owner', 'admin']}>
-              <PropertiesPage />
-            </ProtectedRoute>
-          } />
           <Route path="/earnings" element={
             <ProtectedRoute allowedRoles={['hotel_owner', 'admin']}>
               <EarningsPage />
