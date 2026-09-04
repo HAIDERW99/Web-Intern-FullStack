@@ -7,6 +7,7 @@
 CREATE TABLE IF NOT EXISTS public.profiles (
   id          UUID PRIMARY KEY REFERENCES auth.users(id) ON DELETE CASCADE,
   full_name   TEXT,
+  email       TEXT,
   phone       TEXT,
   avatar_url  TEXT,
   role        TEXT NOT NULL DEFAULT 'customer',
@@ -14,6 +15,9 @@ CREATE TABLE IF NOT EXISTS public.profiles (
 );
 
 ALTER TABLE public.profiles ENABLE ROW LEVEL SECURITY;
+
+-- Ensure email column exists (safe migration for existing deployments)
+ALTER TABLE public.profiles ADD COLUMN IF NOT EXISTS email TEXT;
 
 DROP POLICY IF EXISTS "Allow public read profiles" ON public.profiles;
 DROP POLICY IF EXISTS "Allow insert profile" ON public.profiles;
@@ -38,14 +42,16 @@ CREATE POLICY "Allow update profile"
 CREATE OR REPLACE FUNCTION public.handle_new_user()
 RETURNS TRIGGER LANGUAGE plpgsql SECURITY DEFINER AS $$
 BEGIN
-  INSERT INTO public.profiles (id, full_name, role)
+  INSERT INTO public.profiles (id, full_name, email, role)
   VALUES (
     NEW.id,
     COALESCE(NEW.raw_user_meta_data->>'full_name', ''),
+    NEW.email,
     COALESCE(NEW.raw_user_meta_data->>'role', 'customer')
   )
   ON CONFLICT (id) DO UPDATE SET
     full_name = EXCLUDED.full_name,
+    email     = EXCLUDED.email,
     role = COALESCE(public.profiles.role, EXCLUDED.role);
   RETURN NEW;
 EXCEPTION WHEN OTHERS THEN

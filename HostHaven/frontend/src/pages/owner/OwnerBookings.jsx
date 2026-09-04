@@ -17,33 +17,70 @@ export default function OwnerBookings() {
   async function fetchBookings() {
     if (!user) return;
     setLoading(true);
-    // Get all owner hotels
-    const { data: ownerHotels } = await supabase
-      .from('hotels')
-      .select('id, name')
-      .eq('owner_id', user.id);
 
-    if (!ownerHotels || ownerHotels.length === 0) {
+    try {
+      // 1. Get all owner hotels
+      const { data: ownerHotels, error: hErr } = await supabase
+        .from('hotels')
+        .select('id, name')
+        .eq('owner_id', user.id);
+
+      if (hErr) console.error(hErr);
+
+      if (!ownerHotels || ownerHotels.length === 0) {
+        setHotels([]);
+        setBookings([]);
+        setLoading(false);
+        return;
+      }
+
+      setHotels(ownerHotels);
+      const hotelIds = ownerHotels.map((h) => h.id);
+
+      // 2. Query bookings with hotel & room details
+      const { data: rawBookings, error: bErr } = await supabase
+        .from('bookings')
+        .select(`
+          *,
+          hotels:hotel_id(id, name),
+          rooms:room_id(type, room_number)
+        `)
+        .in('hotel_id', hotelIds)
+        .order('created_at', { ascending: false });
+
+      if (bErr) {
+        console.error('Failed to load bookings:', bErr);
+      }
+
+      const bookingsList = rawBookings || [];
+
+      // 3. Batch fetch customer profiles
+      const customerIds = [...new Set(bookingsList.map((b) => b.customer_id).filter(Boolean))];
+      let profileMap = {};
+      if (customerIds.length > 0) {
+        const { data: profilesData } = await supabase
+          .from('profiles')
+          .select('id, full_name, email, avatar_url')
+          .in('id', customerIds);
+
+        if (profilesData) {
+          profilesData.forEach((p) => {
+            profileMap[p.id] = p;
+          });
+        }
+      }
+
+      const enriched = bookingsList.map((b) => ({
+        ...b,
+        profiles: profileMap[b.customer_id] || { full_name: 'Guest', email: '—', phone: '—' },
+      }));
+
+      setBookings(enriched);
+    } catch (err) {
+      console.error(err);
+    } finally {
       setLoading(false);
-      return;
     }
-
-    setHotels(ownerHotels);
-    const hotelIds = ownerHotels.map((h) => h.id);
-
-    const { data, error } = await supabase
-      .from('bookings')
-      .select(`
-        *,
-        profiles:customer_id(full_name, email, phone),
-        hotels:hotel_id(id, name),
-        rooms:room_id(type, room_number)
-      `)
-      .in('hotel_id', hotelIds)
-      .order('created_at', { ascending: false });
-
-    if (!error) setBookings(data || []);
-    setLoading(false);
   }
 
   useEffect(() => {
@@ -54,7 +91,7 @@ export default function OwnerBookings() {
   useEffect(() => {
     if (!user) return;
     const channel = supabase
-      .channel('owner-bookings-live-sync')
+      .channel(`owner-bookings-live-sync-${user.id}`)
       .on('postgres_changes', { event: '*', schema: 'public', table: 'bookings' }, () => {
         fetchBookings();
       })
@@ -119,18 +156,16 @@ export default function OwnerBookings() {
 
           <div className="flex flex-wrap items-center gap-2.5 w-full sm:w-auto">
             {/* Hotel Filter */}
-            {hotels.length > 1 && (
-              <select
-                value={selectedHotelId}
-                onChange={(e) => setSelectedHotelId(e.target.value)}
-                className="p-2.5 px-3 rounded-xl border border-[#c6c6cd] text-xs bg-white font-semibold focus:border-[#131b2e] outline-none cursor-pointer"
-              >
-                <option value="all">All Properties ({hotels.length})</option>
-                {hotels.map((h) => (
-                  <option key={h.id} value={h.id}>{h.name}</option>
-                ))}
-              </select>
-            )}
+            <select
+              value={selectedHotelId}
+              onChange={(e) => setSelectedHotelId(e.target.value)}
+              className="p-2.5 px-3 rounded-xl border border-[#c6c6cd] text-xs bg-white font-semibold focus:border-[#131b2e] outline-none cursor-pointer"
+            >
+              <option value="all">🏢 All Properties ({hotels.length})</option>
+              {hotels.map((h) => (
+                <option key={h.id} value={h.id}>🏨 {h.name}</option>
+              ))}
+            </select>
 
             {/* Search */}
             <input
@@ -208,7 +243,7 @@ export default function OwnerBookings() {
 
                         <td className="p-4">
                           <p className="font-bold text-[#191c1e]">{b.profiles?.full_name || 'Guest'}</p>
-                          <p className="text-[10px] text-[#76777d]">{b.profiles?.email || '—'}</p>
+                          <p className="text-[10px] text-[#76777d]">{b.profiles?.email || `${b.guests || 1} guest${(b.guests || 1) > 1 ? 's' : ''}`}</p>
                         </td>
 
                         <td className="p-4">

@@ -70,7 +70,7 @@ export default function OwnerDashboard() {
         .eq('owner_id', user.id)
         .order('created_at', { ascending: false });
 
-      if (hErr) console.error(hErr);
+      if (hErr) console.error('Error fetching owner hotels:', hErr);
       const fetchedHotels = ownerHotels || [];
       setHotels(fetchedHotels);
 
@@ -80,24 +80,59 @@ export default function OwnerDashboard() {
         const [roomsRes, bookingsRes, reviewsRes] = await Promise.all([
           supabase
             .from('rooms')
-            .select('*, hotels:hotel_id(name)')
+            .select('*, hotels:hotel_id(id, name)')
             .in('hotel_id', hotelIds)
             .order('room_number'),
           supabase
             .from('bookings')
-            .select('*, profiles:customer_id(full_name, email, phone), hotels:hotel_id(name), rooms:room_id(type, room_number)')
+            .select('*, hotels:hotel_id(id, name), rooms:room_id(type, room_number)')
             .in('hotel_id', hotelIds)
             .order('created_at', { ascending: false }),
           supabase
             .from('reviews')
-            .select('*, profiles:customer_id(full_name), hotels:hotel_id(name)')
+            .select('*, hotels:hotel_id(id, name)')
             .in('hotel_id', hotelIds)
             .order('created_at', { ascending: false }),
         ]);
 
+        const rawBookings = bookingsRes.data || [];
+        const rawReviews  = reviewsRes.data || [];
+
+        // Batch fetch customer profiles
+        const customerIds = [
+          ...new Set([
+            ...rawBookings.map((b) => b.customer_id).filter(Boolean),
+            ...rawReviews.map((r) => r.customer_id).filter(Boolean),
+          ]),
+        ];
+
+        let profileMap = {};
+        if (customerIds.length > 0) {
+          const { data: profilesData } = await supabase
+            .from('profiles')
+            .select('id, full_name, email, avatar_url')
+            .in('id', customerIds);
+
+          if (profilesData) {
+            profilesData.forEach((p) => {
+              profileMap[p.id] = p;
+            });
+          }
+        }
+
+        const enrichedBookings = rawBookings.map((b) => ({
+          ...b,
+          profiles: profileMap[b.customer_id] || { full_name: 'Guest' },
+        }));
+
+        const enrichedReviews = rawReviews.map((r) => ({
+          ...r,
+          profiles: profileMap[r.customer_id] || { full_name: 'Guest' },
+        }));
+
         setRooms(roomsRes.data || []);
-        setBookings(bookingsRes.data || []);
-        setReviews(reviewsRes.data || []);
+        setBookings(enrichedBookings);
+        setReviews(enrichedReviews);
 
         if (!newRoomHotelId && fetchedHotels[0]) {
           setNewRoomHotelId(fetchedHotels[0].id);
@@ -108,7 +143,7 @@ export default function OwnerDashboard() {
         setReviews([]);
       }
     } catch (err) {
-      console.error(err);
+      console.error('Error loading owner dashboard data:', err);
     } finally {
       setDataLoading(false);
     }
@@ -139,7 +174,7 @@ export default function OwnerDashboard() {
     };
   }, [user]);
 
-  // Active Hotel (if individual selected, or first hotel as fallback for single property profile)
+  // Active Hotel
   const currentHotel = useMemo(() => {
     if (selectedHotelId === 'all') return hotels[0] || null;
     return hotels.find((h) => h.id === selectedHotelId) || hotels[0] || null;
@@ -344,7 +379,7 @@ export default function OwnerDashboard() {
       type:        newRoomType,
       price:       Number(newRoomRate),
       status:      'available',
-    }]).select('*, hotels:hotel_id(name)').maybeSingle();
+    }]).select('*, hotels:hotel_id(id, name)').maybeSingle();
 
     if (!error && data) {
       setRooms((prev) => [...prev, data]);
@@ -382,18 +417,16 @@ export default function OwnerDashboard() {
 
           <div className="flex flex-wrap items-center gap-2.5 w-full sm:w-auto">
             {/* Multi-Property Switcher */}
-            {hotels.length > 1 && (
-              <select
-                value={selectedHotelId}
-                onChange={(e) => setSelectedHotelId(e.target.value)}
-                className="bg-white border border-[#c6c6cd] text-[#191c1e] text-xs font-bold px-3 py-2.5 rounded-xl shadow-xs outline-none focus:border-[#131b2e] cursor-pointer"
-              >
-                <option value="all">🏢 All Properties ({hotels.length})</option>
-                {hotels.map((h) => (
-                  <option key={h.id} value={h.id}>🏨 {h.name}</option>
-                ))}
-              </select>
-            )}
+            <select
+              value={selectedHotelId}
+              onChange={(e) => setSelectedHotelId(e.target.value)}
+              className="bg-white border border-[#c6c6cd] text-[#191c1e] text-xs font-bold px-3 py-2.5 rounded-xl shadow-xs outline-none focus:border-[#131b2e] cursor-pointer"
+            >
+              <option value="all">🏢 All Properties ({hotels.length})</option>
+              {hotels.map((h) => (
+                <option key={h.id} value={h.id}>🏨 {h.name}</option>
+              ))}
+            </select>
 
             <button
               onClick={() => navigate('/owner/register-property')}
@@ -456,7 +489,7 @@ export default function OwnerDashboard() {
             </div>
           </div>
 
-          {/* Room Availability (Exact Real-Time Numbers) */}
+          {/* Room Availability */}
           <div className="bg-white rounded-2xl p-6 border border-[#e0e3e5] flex flex-col justify-between shadow-xs relative overflow-hidden">
             <div className="flex justify-between items-start relative z-10">
               <span className="text-xs font-bold text-[#45464d] uppercase tracking-wide">Room Availability</span>
@@ -482,7 +515,6 @@ export default function OwnerDashboard() {
 
             {/* ── Dynamic Reservation Timeline ── */}
             <div className="bg-white rounded-2xl border border-[#e0e3e5] overflow-hidden shadow-xs">
-              {/* Header with Navigation Controls */}
               <div className="p-5 border-b border-[#e0e3e5] flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3 bg-[#f7f9fb]">
                 <div>
                   <div className="flex items-center gap-2">
@@ -502,7 +534,6 @@ export default function OwnerDashboard() {
                   </p>
                 </div>
 
-                {/* Week Navigation Buttons (< Today >) */}
                 <div className="flex items-center gap-1.5 bg-white p-1 rounded-xl border border-[#c6c6cd] shadow-2xs">
                   <button
                     type="button"
@@ -539,7 +570,6 @@ export default function OwnerDashboard() {
               {/* 7-Day Timeline Grid */}
               <div className="p-5 overflow-x-auto">
                 <div className="min-w-[620px]">
-                  {/* Days Header */}
                   <div className="grid grid-cols-7 gap-2.5 mb-3">
                     {weekDays.map((dayDate, i) => {
                       const isToday = isTodayDate(dayDate);
@@ -646,7 +676,6 @@ export default function OwnerDashboard() {
                   </div>
                 </div>
 
-                {/* Timeline Legend & Quick Action */}
                 <div className="mt-4 pt-3.5 border-t border-[#e0e3e5] flex flex-wrap items-center justify-between gap-3 text-xs text-[#76777d]">
                   <div className="flex flex-wrap items-center gap-4">
                     <span className="flex items-center gap-1.5 font-medium">
@@ -686,10 +715,10 @@ export default function OwnerDashboard() {
               </div>
 
               {displayBookings.length === 0 ? (
-                <p className="text-xs text-[#76777d] py-6 text-center">No active bookings currently for this property.</p>
+                <p className="text-xs text-[#76777d] py-6 text-center">No bookings currently recorded for this property selection.</p>
               ) : (
                 <div className="divide-y divide-[#f2f4f6]">
-                  {displayBookings.slice(0, 4).map((b) => {
+                  {displayBookings.slice(0, 5).map((b) => {
                     const isUpdating = updatingBookingId === b.id;
                     const guestName = b.profiles?.full_name || 'Guest';
 

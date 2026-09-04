@@ -14,17 +14,18 @@ export const AuthProvider = ({ children }) => {
     try {
       const { data } = await supabase
         .from('profiles')
-        .select('role, full_name, phone')
+        .select('role, full_name, phone, email, avatar_url')
         .eq('id', userObj.id)
         .maybeSingle();
 
       if (data) {
-        setProfile(data);
+        setProfile({ ...data, email: data.email || userObj.email });
       } else {
         const fallback = {
           role: userObj.user_metadata?.role || 'customer',
           full_name: userObj.user_metadata?.full_name || 'User',
           phone: userObj.user_metadata?.phone || null,
+          email: userObj.email || null,
         };
         setProfile(fallback);
 
