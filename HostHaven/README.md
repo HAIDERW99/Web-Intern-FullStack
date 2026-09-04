@@ -36,19 +36,23 @@ You can use the following pre-configured demo credentials to explore all user ro
 
 ### 1. Explore & Property Discovery
 > *Search and filter through approved luxury hotels, resorts, and apartments.*
-<img width="1893" height="869" alt="image" src="https://github.com/user-attachments/assets/82e14d70-02e4-499d-a07b-db81a2962884" />
+<img width="959" height="439" alt="Screenshot 2026-09-01 222304" src="https://github.com/user-attachments/assets/9cf74f0b-a5f3-45d3-b93a-77a36672e8e3" />
+
 
 ### 2. Hotel Details & Room Reservation
 > *Real-time booking interface with date pickers, room selection, and price breakdown.
-> <img width="1898" height="871" alt="image" src="https://github.com/user-attachments/assets/f03a6125-2817-4ca3-8c0a-622e25ed9c55" />
+<img width="946" height="438" alt="Screenshot 2026-09-01 222329" src="https://github.com/user-attachments/assets/8dd1ba52-861c-48b3-b1a0-6ad336fd5452" />
+
 
 ### 3. Owner Property Registration & Inventory
 > *Multi-step property registration wizard and real-time room inventory management.*
-<img width="1894" height="879" alt="image" src="https://github.com/user-attachments/assets/85e099d1-97e1-45a2-b610-7ab3d6bc4368" />
+<img width="951" height="437" alt="Screenshot 2026-09-01 222431" src="https://github.com/user-attachments/assets/0527b565-cf0f-4e24-bc9b-5c4fa832fae9" />
+
 
 ### 4. Admin Verification & Approval Dashboard
 > *Document verification, property approval/rejection modal with direct owner feedback.*
-<img width="1896" height="867" alt="image" src="https://github.com/user-attachments/assets/6287e6c3-754c-4290-bfa2-8a22ad32df5d" />
+<img width="951" height="441" alt="Screenshot 2026-09-01 222513" src="https://github.com/user-attachments/assets/4426129b-a233-43a2-b584-0078d4ea1795" />
+
 ---
 
 ## 🛠️ Technologies Used
